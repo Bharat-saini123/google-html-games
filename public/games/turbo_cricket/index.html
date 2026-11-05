@@ -85,11 +85,23 @@ function person(o){const g=new T.Group(),pv=new T.Group(),up=new T.Group();pv.po
  return{g,pv,up,legL:leg(-.11),legR:leg(.11),armL:arm(-.3),armR:arm(.3)}}
 const BX=.25,BZ=-10.2,bat=person({shirt:0xf5b800,trim:0x182a5a,pants:0x182a5a,helm:0x182a5a,pads:1,glove:0xffffff,num:'18',numCol:'#182a5a'});bat.g.position.set(BX,0,BZ);S.add(bat.g);
 bat.armL.rotation.z=.55;bat.armR.rotation.z=-.55;bat.bat=new T.Group();bat.up.add(bat.bat);
-{const wd=mat(0xdcb67f,.5),dk=mat(0x1b1b1b,.8),m=(geo,mm,y)=>{const e=new T.Mesh(geo,mm);e.position.set(0,y,0);e.castShadow=true;bat.bat.add(e)};
- m(new T.CylinderGeometry(.026,.026,.34,8),dk,.12);m(new T.BoxGeometry(.075,.14,.05),wd,-.14);m(new T.BoxGeometry(.13,.74,.055),wd,-.58);m(new T.BoxGeometry(.045,.5,.06),mat(0xc29a5c,.6),-.62)}
-function poseBat(){let th;if(swT>=0){const s=swT;if(s<.08)th=.12+1.9*(s/.08);else if(s<.3){const u=(s-.08)/.22;th=2.02-3.32*(1-(1-u)*(1-u))}else th=-1.3}else th=swFin?-1.3:.12;
- const A=cl(-.2+(th-.12)*1.5,-3.4,2.4);bat.armL.rotation.x=bat.armR.rotation.x=A;bat.bat.position.set(0,1.55-.55*Math.cos(A),-.55*Math.sin(A));bat.bat.rotation.x=th;
- const pr=swT>=0?Math.min(1,swT/.17):swFin?1:0,bx=ball.on?ball.x:BX;bat.g.position.x=BX+(bx-BX-.1)*.8*pr;bat.up.rotation.y=-aim*.5+(swT>=0?(pr-.5)*.4:swFin?.2:0)}
+{const wd=mat(0xe3c991,.55),edge=mat(0xa98654,.7),dk=mat(0x1b1b1b,.8),m=(geo,mm,y)=>{const e=new T.Mesh(geo,mm);e.position.set(0,y,0);e.castShadow=true;bat.bat.add(e)};
+ m(new T.CylinderGeometry(.026,.026,.34,8),dk,.12);m(new T.BoxGeometry(.075,.14,.05),wd,-.14);m(new T.BoxGeometry(.13,.74,.055),wd,-.58);m(new T.BoxGeometry(.045,.5,.06),mat(0xc29a5c,.6),-.62);
+ [-1,1].forEach(s=>{const e=new T.Mesh(new T.BoxGeometry(.014,.72,.06),edge);e.position.set(s*.064,-.58,0);e.castShadow=true;bat.bat.add(e)})}
+const ease01=x=>{x=cl(x,0,1);return x*x*(3-2*x)};
+function poseBat(time){const readyTh=.12;let th=readyTh,recovery=0;
+ if(swT>=0){const s=swT;if(s<.08)th=readyTh+(2.02-readyTh)*(s/.08);else if(s<.3){const u=(s-.08)/.22;th=2.02-3.32*(1-(1-u)*(1-u))}else th=-1.3}
+ else if(swFin){recovery=cl(swFinT/.58,0,1);th=-1.3+(readyTh+1.3)*ease01(recovery)}
+ const step=swT>=0?ease01(swT/.14):swFin?1-ease01(swFinT/.58):0;
+ const idle=Math.sin(time*.0022)*.012,A=cl(-.2+(th-.12)*1.5,-3.4,2.4);
+ bat.armL.rotation.x=A;bat.armR.rotation.x=A;
+ bat.legL.rotation.x=-.08-.42*step+idle;bat.legR.rotation.x=.035+.18*step-idle*.65;
+ bat.pv.rotation.x=.025+.105*step+idle;bat.pv.rotation.y=.13*step;
+ bat.bat.position.set(0,1.55-.55*Math.cos(A),-.55*Math.sin(A));
+ bat.bat.rotation.set(th,0,-aim*.28-.12*step);
+ const pr=swT>=0?Math.min(1,swT/.17):swFin?1:0,bx=ball.on?ball.x:BX;
+ bat.g.position.set(BX+(bx-BX-.1)*.8*pr,0,BZ+.2*step);
+ bat.up.rotation.y=-aim*.5+(swT>=0?(pr-.5)*.4:swFin?.2*(1-recovery):0)}
 const bow=person({shirt:0x1e63d6,trim:0xffffff,pants:0x10204a,cap:0x0f3f9a,num:'7'});bow.g.rotation.y=Math.PI;S.add(bow.g);
 const HOME=[[0,-13.8],[-1.8,-14.4],[-5.5,-9],[-18,-4],[-24,12],[-12,30],[14,30],[26,10],[22,-8],[12,-30]],F=[];
 HOME.forEach((h,i)=>{const f=i===0?person({shirt:0xd62839,trim:0xffffff,pants:0x22222e,cap:0xd62839,pads:1,glove:0xff9d00,bigGlove:1,num:'1'}):person({shirt:0x1e63d6,trim:0xffffff,pants:0x10204a,cap:0x0f3f9a,num:String(i+1)});
@@ -114,13 +126,13 @@ document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.onpointerdown
 $('c').addEventListener('pointerdown',()=>swing());
 // game
 const TARGET=30,BALLS=18,WK=3,ch=2.6;
-let st='menu',sc=0,wk=0,bl=0,log=[],aim=0,runT=0,swT=-1,swFin=false,hit=false,deadT=0,finish=false,shot={x:0,z:1},shake=0,mt=0,bowT=0,fs=null,flT=0;
+let st='menu',sc=0,wk=0,bl=0,log=[],aim=0,runT=0,swT=-1,swFin=false,swFinT=0,hit=false,deadT=0,finish=false,shot={x:0,z:1},shake=0,mt=0,bowT=0,fs=null,flT=0;
 const cp=new T.Vector3(.2,3.7,-19.8),lk=new T.Vector3(0,.9,5),camD=new T.Vector2(0,1);
 function banner(t){const m=$('msg');m.textContent=t;m.style.opacity=1;clearTimeout(mt);mt=setTimeout(()=>m.style.opacity=0,1500)}
 function hud(){$('sc').textContent=sc+'/'+wk;$('ovs').textContent='OVERS '+Math.floor(bl/6)+'.'+bl%6+' / 3';const nd=TARGET-sc;$('need').textContent=nd>0?'Need '+nd+' off '+(BALLS-bl)+' balls':'Target chased!';$('log').textContent=log.slice(-6).join('  ')}
 function newGame(){initA();if(AC.state==='suspended')AC.resume();sc=wk=bl=0;log=[];finish=false;aim=0;hud();$('ov').style.display='none';nextBall()}
 $('go').onclick=newGame;
-function nextBall(){st='run';runT=0;swT=-1;swFin=false;hit=false;ball.on=false;fs=null;flT=0;F.forEach(f=>{f.pv.rotation.x=0});bm.visible=blob.visible=false;arrow.visible=true;$('sp').textContent='— km/h';
+function nextBall(){st='run';runT=0;swT=-1;swFin=false;swFinT=0;hit=false;ball.on=false;fs=null;flT=0;F.forEach(f=>{f.pv.rotation.x=0});bm.visible=blob.visible=false;arrow.visible=true;$('sp').textContent='— km/h';
  SM.forEach(s=>{s.v=null;s.m.position.set(s.hx,.36,-10.95);s.m.rotation.set(0,0,0)});bow.g.position.set(.2,0,26)}
 function swing(){if((st==='run'||st==='ball')&&swT<0&&!swFin){swT=0}}
 function release(){const v=24+Math.random()*12,r=Math.random();let zb=-8+Math.random()*8.5,xb=rn()*.9;if(r<.08)zb=-14;if(r>.82)xb=(Math.random()<.5?-1:1)*(.8+Math.random()*.5);
@@ -171,8 +183,9 @@ let last=performance.now();
 function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;const g=dt*(st==='run'||st==='ball'?.8:1);
  if(st==='run'||(st==='ball'&&!hit)){aim=cl(aim+((K.KeyD||K.ArrowRight||tc.r?1:0)-(K.KeyA||K.ArrowLeft||tc.l?1:0))*dt*1.8,-1,1)}
  const ph=aim*1.3;arrow.setDirection(new T.Vector3(-Math.sin(ph),0,Math.cos(ph)));
- if(swT>=0){swT+=g;if(swT>.42){swT=-1;swFin=true}}
- poseBat();
+ if(swT>=0){swT+=g;if(swT>.42){swT=-1;swFin=true;swFinT=0}}
+ if(swFin){swFinT+=g;if(swFinT>.72){swFin=false;swFinT=0}}
+ poseBat(t);
  if(st==='run'){runT+=g;const e=Math.min(1,runT/1.5);bow.g.position.z=26-15.6*e;const w=Math.sin(runT*16)*.9;bow.legL.rotation.x=w;bow.legR.rotation.x=-w;bow.armL.rotation.x=-w;
   bow.armR.rotation.x=runT>1.2?(runT-1.2)/.3*Math.PI:-w;if(runT>=1.5){release();st='ball'}}
  if(st==='ball'||st==='flight'){bowT+=g;if(st==='flight')flT+=g;if(st==='ball')bow.armR.rotation.x=Math.min(2*Math.PI,Math.PI+bowT*0);
