@@ -123,6 +123,9 @@ h1 {
   color: inherit;
   text-decoration: none;
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
 }
 
 .game:hover,
@@ -165,6 +168,103 @@ h2 {
   text-align: center;
 }
 
+.player-section {
+  margin: 0 0 42px;
+  padding: 22px;
+  border: 1px solid rgba(125, 232, 255, 0.2);
+  border-radius: 22px;
+  background: rgba(14, 19, 37, 0.86);
+}
+
+.player-heading,
+.player-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.player-heading { margin-bottom: 18px; }
+.player-heading h2 { margin: 6px 0 0; }
+.player-actions { justify-content: flex-end; }
+
+.player-button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 11px;
+  background: #171d35;
+  color: #e8edff;
+  cursor: pointer;
+}
+
+.player-button.primary {
+  border-color: #7de8ff;
+  background: #163448;
+  color: #a4efff;
+  font-weight: 750;
+}
+
+.player-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 16px;
+}
+
+.game-frame-wrap {
+  overflow: hidden;
+  min-width: 0;
+  height: 500px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 14px;
+  background: #05070c;
+}
+
+.game-frame { display: block; width: 100%; height: 100%; border: 0; }
+
+.game-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  background: #11172a;
+}
+
+.game-sidebar h3 { margin: 0 0 4px; font-size: 1rem; }
+
+.sidebar-game {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #1a2239;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-game:hover, .sidebar-game:focus-visible { border-color: #7de8ff; outline: none; }
+
+.player-section:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  border: 0;
+  border-radius: 0;
+  background: #080b15;
+}
+
+.player-section:fullscreen .player-layout { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; }
+.player-section:fullscreen .game-frame-wrap,
+.player-section:fullscreen .game-sidebar { height: calc(100vh - 124px); max-height: none; }
+
 footer {
   padding-top: 28px;
   color: #8490ad;
@@ -173,9 +273,50 @@ footer {
 }
 
 @media (max-width: 560px) {
+  body { min-width: 320px; }
+
   .shell {
+    width: min(100% - 24px, 1120px);
     padding-top: 42px;
+    padding-bottom: 30px;
   }
+
+  .intro { margin-bottom: 24px; }
+  .intro p { font-size: .98rem; }
+  .controls { gap: 10px; }
+  .filters { gap: 7px; }
+  .filter { padding: 8px 11px; font-size: .88rem; }
+  .games { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .game { min-height: 176px; padding: 15px; border-radius: 16px; }
+  .game h2 { font-size: 1.02rem; }
+  .description { font-size: .84rem; }
+
+  .player-section { margin-bottom: 30px; padding: 12px; border-radius: 17px; }
+  .player-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+  .player-heading h2 { font-size: 1.1rem; }
+  .player-actions { width: 100%; justify-content: stretch; gap: 8px; }
+  .player-button { flex: 1; padding: 9px 8px; font-size: .88rem; }
+  .player-layout { grid-template-columns: minmax(0, 1fr); }
+  .game-frame-wrap { height: clamp(300px, 56svh, 430px); border-radius: 11px; }
+  .game-sidebar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 76px;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px;
+    scroll-snap-type: x proximity;
+  }
+  .game-sidebar h3 { flex: 0 0 auto; white-space: nowrap; }
+  .sidebar-game { flex: 0 0 150px; scroll-snap-align: start; }
+
+  .player-section:fullscreen { padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); }
+  .player-section:fullscreen .player-heading { flex-direction: row; align-items: center; }
+  .player-section:fullscreen .player-layout { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .player-section:fullscreen .game-frame-wrap { height: calc(100svh - 190px); min-height: 220px; }
+  .player-section:fullscreen .game-sidebar { height: 82px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

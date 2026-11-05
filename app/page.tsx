@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
+type GameCategory = "car games" | "shooting games" | "puzzle & memory" | "arcade games" | "bike games";
 
 const games = [
   {
@@ -8,70 +10,70 @@ const games = [
     description: "Battle rival cars and survive the arena.",
     icon: "🚗💥",
     href: "/games/ROAD_RAAGE/index.html",
-    categories: ["car games", "shooting games"],
+    categories: ["car games", "shooting games"] as GameCategory[],
   },
   {
     title: "Turbo Circuit",
     description: "Race through three laps and chase first place.",
     icon: "🏁",
     href: "/games/car_race/index.html",
-    categories: ["car games"],
+    categories: ["car games"] as GameCategory[],
   },
   {
     title: "Animal Memory Match",
     description: "Flip the cards and match all the animals.",
     icon: "🐾",
     href: "/games/kinda%20memory/index.html",
-    categories: ["puzzle & memory"],
+    categories: ["puzzle & memory"] as GameCategory[],
   },
   {
     title: "Fun Puzzle",
     description: "Choose a picture and complete a fun puzzle.",
     icon: "🧩",
     href: "/games/puzzle/index.html",
-    categories: ["puzzle & memory"],
+    categories: ["puzzle & memory"] as GameCategory[],
   },
   {
     title: "Sky Dash 3D",
     description: "Dodge obstacles and collect coins in the sky.",
     icon: "☁️",
     href: "/games/sky-dash/index.html",
-    categories: ["arcade games"],
+    categories: ["arcade games"] as GameCategory[],
   },
   {
     title: "Turbo Bike GP",
     description: "Speed around the track and race to the finish.",
     icon: "🏍️",
     href: "/games/turbo_bike/index.html",
-    categories: ["bike games"],
+    categories: ["bike games"] as GameCategory[],
   },
   {
     title: "Turbo Cricket",
     description: "Aim your shots and chase the target score.",
     icon: "🏏",
     href: "/games/turbo_cricket/index.html",
-    categories: ["arcade games"],
+    categories: ["arcade games"] as GameCategory[],
   },
   {
     title: "Turbo Bike Combat",
     description: "Race the pack and take on rival riders.",
     icon: "🏍️🔫",
     href: "/games/turbo_combacg_bike_race/index.html",
-    categories: ["bike games", "shooting games"],
+    categories: ["bike games", "shooting games"] as GameCategory[],
   },
   {
     title: "Turbo Combat Race",
     description: "Compete in a high-speed combat race.",
     icon: "🚘🔫",
     href: "/games/turbo_combact_race/index.html",
-    categories: ["car games", "shooting games"],
+    categories: ["car games", "shooting games"] as GameCategory[],
   },
   {
     title: "Turbo Strike",
     description: "Survive enemy waves in an action arena.",
     icon: "🎯",
     href: "/games/turbo_strike/index.html",
-    categories: ["shooting games", "arcade games"],
+    categories: ["shooting games", "arcade games"] as GameCategory[],
   },
 ] as const;
 
@@ -117,13 +119,15 @@ const structuredData = {
 export default function Home() {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<Filter>("all games");
+  const [selectedGame, setSelectedGame] = useState<(typeof games)[number] | null>(null);
+  const playerRef = useRef<HTMLElement>(null);
 
   const visibleGames = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return games.filter((game) => {
       const matchesFilter =
         activeFilter === "all games" ||
-        game.categories.includes(activeFilter as (typeof game.categories)[number]);
+        game.categories.includes(activeFilter);
       const searchableText = `${game.title} ${game.description} ${game.categories.join(" ")}`.toLowerCase();
       return matchesFilter && searchableText.includes(normalizedQuery);
     });
@@ -143,6 +147,51 @@ export default function Home() {
           below to start playing.
         </p>
       </header>
+
+      {selectedGame && (
+        <section className="player-section" aria-label="Game player" ref={playerRef}>
+          <div className="player-heading">
+            <div>
+              <span className="eyebrow">Now playing</span>
+              <h2>{selectedGame.icon} {selectedGame.title}</h2>
+            </div>
+            <div className="player-actions">
+              <button className="player-button" type="button" onClick={() => setSelectedGame(null)}>
+                Back to games
+              </button>
+              <button
+                className="player-button primary"
+                type="button"
+                onClick={() => {
+                  if (!document.fullscreenElement) playerRef.current?.requestFullscreen();
+                  else document.exitFullscreen();
+                }}
+              >
+                Fullscreen ⛶
+              </button>
+            </div>
+          </div>
+          <div className="player-layout">
+            <div className="game-frame-wrap">
+              <iframe className="game-frame" src={selectedGame.href} title={selectedGame.title} allowFullScreen />
+            </div>
+            <aside className="game-sidebar" aria-label="Choose another game">
+              <h3>More games</h3>
+              {games.filter((game) => game.title !== selectedGame.title).map((game) => (
+                <button
+                  className="sidebar-game"
+                  type="button"
+                  key={game.title}
+                  onClick={() => setSelectedGame(game)}
+                >
+                  <span aria-hidden="true">{game.icon}</span>
+                  <span>{game.title}</span>
+                </button>
+              ))}
+            </aside>
+          </div>
+        </section>
+      )}
 
       <section className="catalog" aria-label="Game catalog">
         <div className="controls">
@@ -174,14 +223,14 @@ export default function Home() {
 
         <section className="games" aria-label="Available games" aria-live="polite">
           {visibleGames.map((game) => (
-            <a className="game" href={game.href} key={game.title}>
+            <button className="game" type="button" onClick={() => setSelectedGame(game)} key={game.title}>
               <span className="icon" aria-hidden="true">
                 {game.icon}
               </span>
               <h2>{game.title}</h2>
               <span className="description">{game.description}</span>
               <span className="play">Play game →</span>
-            </a>
+            </button>
           ))}
           {visibleGames.length === 0 && (
             <p className="empty" role="status">
