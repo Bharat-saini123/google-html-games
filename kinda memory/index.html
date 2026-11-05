@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animal Memory Match - Free Kids Memory Game</title>
+<meta name="description" content="Free online memory match game for kids. Flip the cards, find the matching animals and fruits. No download needed.">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2477873571714584"
+     crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:"Trebuchet MS",Arial,sans-serif;background:linear-gradient(#fff3b0,#ffc6e0);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px;color:#4a3b69}
+h1{margin:6px 0;font-size:clamp(24px,6vw,36px)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}
+button.pill{font:inherit;font-weight:bold;font-size:16px;border:none;border-radius:999px;padding:10px 18px;background:#fff;color:#4a3b69;box-shadow:0 3px 0 #e3b5d3;cursor:pointer}
+button.pill.on{background:#ff6fa5;color:#fff;box-shadow:0 3px 0 #d44d82}
+#info{font-size:18px;font-weight:bold;min-height:28px}
+#board{display:grid;gap:8px;width:min(94vw,440px);margin:10px 0}
+.card{aspect-ratio:1;perspective:600px;border:none;background:none;padding:0;cursor:pointer}
+.in{position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.card.flip .in,.card.done .in{transform:rotateY(180deg)}
+.f,.b{position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;box-shadow:0 4px 0 #0002}
+.b{background:linear-gradient(135deg,#7c5cff,#ff6fa5);color:#fff;font-size:clamp(24px,8vw,40px)}
+.f{background:#fff;transform:rotateY(180deg);font-size:clamp(32px,11vw,56px)}
+.card.done .f{background:#d8ffd8;animation:pop .4s}
+@keyframes pop{50%{transform:rotateY(180deg) scale(1.12)}}
+#win{display:none;position:fixed;inset:0;background:#0006;align-items:center;justify-content:center;z-index:5}
+#win div{background:#fff;border-radius:24px;padding:28px 34px;text-align:center;max-width:90vw}
+#win .big{font-size:60px}
+</style>
+</head>
+<body>
+<h1>🐾 Animal Memory Match</h1>
+
+<div class="bar" id="sizes">
+  <button class="pill" data-p="4">Easy</button>
+  <button class="pill on" data-p="6">Medium</button>
+  <button class="pill" data-p="8">Hard</button>
+</div>
+<div id="info"></div>
+<div id="board"></div>
+<div class="bar"><button class="pill" id="shuf">🔄 New Game</button></div>
+
+<div id="win"><div><div class="big">🎉⭐🎉</div><h2>Great memory! You found them all!</h2><p id="wm"></p><button class="pill on" id="again">Play Again</button></div></div>
+
+<script>
+const EMO=['🐶','🐱','🐰','🦁','🐼','🐸','🐵','🐘','🦊','🐧','🍎','🍌'];
+let pairs=6,cards=[],open=[],moves=0,matched=0,lock=false;
+const $=id=>document.getElementById(id),board=$('board');
+
+let ac;function beep(f,d=.1){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+
+function init(){
+  const pick=[...EMO].sort(()=>Math.random()-.5).slice(0,pairs);
+  cards=[...pick,...pick].sort(()=>Math.random()-.5);
+  open=[];moves=0;matched=0;lock=false;
+  const cols=pairs===4?4:pairs===6?4:4;
+  board.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  board.innerHTML='';
+  cards.forEach((e,i)=>{
+    const b=document.createElement('button');b.className='card';
+    b.innerHTML=`<div class="in"><div class="b">?</div><div class="f">${e}</div></div>`;
+    b.onclick=()=>flip(i,b);
+    board.appendChild(b);
+  });
+  info();
+}
+function info(){$('info').textContent='Moves: '+moves+'  •  Pairs: '+matched+'/'+pairs}
+function flip(i,b){
+  if(lock||b.classList.contains('flip')||b.classList.contains('done'))return;
+  b.classList.add('flip');beep(500);open.push([i,b]);
+  if(open.length===2){
+    moves++;lock=true;
+    const [[i1,b1],[i2,b2]]=open;
+    if(cards[i1]===cards[i2]){
+      setTimeout(()=>{b1.classList.replace('flip','done');b2.classList.replace('flip','done');matched++;beep(784,.2);open=[];lock=false;info();if(matched===pairs)win()},400);
+    }else{
+      setTimeout(()=>{b1.classList.remove('flip');b2.classList.remove('flip');open=[];lock=false},800);
+    }
+    info();
+  }
+}
+function win(){
+  beep(523,.15);setTimeout(()=>beep(659,.15),150);setTimeout(()=>beep(784,.3),300);
+  const s=moves<=pairs+2?'⭐⭐⭐':moves<=pairs*2?'⭐⭐':'⭐';
+  $('wm').textContent='Solved in '+moves+' moves! '+s;
+  setTimeout(()=>$('win').style.display='flex',500);
+}
+$('again').onclick=()=>{$('win').style.display='none';init()};
+$('shuf').onclick=init;
+$('sizes').onclick=e=>{const v=e.target.dataset.p;if(!v)return;pairs=+v;[...$('sizes').children].forEach(b=>b.classList.toggle('on',b.dataset.p===v));init()};
+init();
+</script>
+</body>
+</html>
