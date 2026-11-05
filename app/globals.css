@@ -297,7 +297,7 @@ footer {
   .player-actions { width: 100%; justify-content: stretch; gap: 8px; }
   .player-button { flex: 1; padding: 9px 8px; font-size: .88rem; }
   .player-layout { grid-template-columns: minmax(0, 1fr); }
-  .game-frame-wrap { height: clamp(300px, 56svh, 430px); border-radius: 11px; }
+  .game-frame-wrap { height: clamp(380px, 70svh, 620px); border-radius: 11px; }
   .game-sidebar {
     display: flex;
     flex-direction: row;
