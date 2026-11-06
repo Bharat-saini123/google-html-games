@@ -219,9 +219,9 @@ function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;fr++;
  const cf=CFG[carType];
  if(cam.parent===pl.b){const sp=Math.abs(pl.f),kmh=sp*3.6;nit=(K.ShiftLeft||tc.n)&&nitro>1;
   const sw=intObj.sw;sw.rotation.z+=(-(pl.str||0)*1.3-sw.rotation.z)*Math.min(1,dt*8);
-  const bob=pl.grass?Math.sin(t/45)*.004*Math.min(1,sp/15):0;cam.position.set(cf.eye[0],cf.eye[1]+bob,cf.eye[2]);
-  cam.fov=cf.fov+sp*.28+(nit&&state==='race'?10:0);cam.updateProjectionMatrix();$('nit').style.opacity=nit&&state==='race'?.55:0;
-  pl.rz=(pl.rz||0)+(cl(-pl.l*(carType==='sf'?.006:.004),-.035,.035)-(pl.rz||0))*Math.min(1,dt*2.5);pl.rx=(pl.rx||0)+(cl(-(pl.acc||0)*.00012,-.01,.01)-(pl.rx||0))*Math.min(1,dt*2.5);pl.b.rotation.z=pl.rz;pl.b.rotation.x=pl.rx;
+  cam.position.set(cf.eye[0],cf.eye[1],cf.eye[2]);
+  cam.fov=cf.fov;cam.updateProjectionMatrix();$('nit').style.opacity=nit&&state==='race'?.55:0;
+  pl.b.rotation.z=0;pl.b.rotation.x=0;
   if(fr%2===0){const gear=Math.min(6,1+Math.floor(kmh/42)),lo=(gear-1)*42;drawCluster(kmh,Math.min(7.6,1+Math.min(1,(kmh-lo)/48)*5.5+(gear>1?.5:0)),cf);if(fr%4===0)drawInfo()}
   $('nt').style.width=nitro+'%';
   if(eo){eo.frequency.value=carType==='rr'?30+sp*2.2:36+sp*3.4;eo2.frequency.value=carType==='rr'?60+sp*4.4:50+sp*3;eo.type=carType==='rr'?'triangle':'sawtooth'}
@@ -229,7 +229,7 @@ function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;fr++;
   }
  else{const a=t/6000,q=PT[N-10];cam.position.set(q.x+Math.cos(a)*30,10,q.z+Math.sin(a)*30);cam.lookAt(q.x,1,q.z);cam.fov=60;cam.updateProjectionMatrix();if(eo){eo.frequency.value=0;eo2.frequency.value=0}}
  cars.forEach(c=>{c.g.position.set(c.x,0,c.z);c.g.rotation.y=c.h;if(!c.isP){c.b.rotation.z=cl(-c.l*.012,-.12,.12);c.wh.forEach(w=>{w.m.rotation.x+=c.f*dt/.46;if(w.fr)w.pv.rotation.y=(c.str||0)*.45})}});
- shake=Math.max(0,shake-dt*2);if(shake>0&&cam.parent===pl.b){cam.position.x+=rn()*shake*.03;cam.position.y+=rn()*shake*.03}
+ shake=Math.max(0,shake-dt*2);
  if(cam.parent===pl.b){rcam.position.set(pl.x-Math.sin(pl.h)*1.2,1.35,pl.z-Math.cos(pl.h)*1.2);rcam.rotation.order='YXZ';rcam.rotation.set(pl.rx||0,pl.h,pl.rz||0);intObj.g.visible=false;R.setRenderTarget(RT);R.render(S,rcam);R.setRenderTarget(null);intObj.g.visible=true}
  R.render(S,cam);requestAnimationFrame(tick)}
 let shake=0;requestAnimationFrame(tick);
