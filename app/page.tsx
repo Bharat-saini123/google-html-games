@@ -82,6 +82,13 @@ const games = [
     href: "/games/turbo_strike/index.html",
     categories: ["shooting games", "arcade games"] as GameCategory[],
   },
+  {
+    title: "Turbo Fighters",
+    description: "Pick a fighter and battle your way through the arena.",
+    icon: "🥊",
+    href: "/games/turbo_fighters/index.html",
+    categories: ["arcade games"] as GameCategory[],
+  },
 ] as const;
 
 const filters = [
