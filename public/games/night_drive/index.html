@@ -127,7 +127,7 @@ for(let i=0;i<40;i++){const a=i/40*6.28,r=520+Math.random()*120,h=50+Math.random
 // ---------- cockpit ----------
 const woodT=ctex(128,64,x=>{x.fillStyle='#6b3b1a';x.fillRect(0,0,128,64);for(let i=0;i<70;i++){x.fillStyle=`rgba(${30+Math.random()*50|0},12,2,${.15+Math.random()*.25})`;x.fillRect(0,Math.random()*64,128,1+Math.random()*2)}});
 const CFG={rr:{eye:[-.4,1.42,-.5],paint:0x0b1226,leather:0xd8c8a4,dash:0x1b1713,wood:1,hy:.98,z0:.85,z1:2.4,orn:1,wr:.19,fov:78,top:46,lab:'POWER'},
- sf:{eye:[-.4,1.72,-.5],paint:0xe9e9ee,leather:0x3a3a3c,dash:0x15151a,wood:0,hy:1.22,z0:.95,z1:2.1,orn:0,wr:.21,fov:82,top:43,lab:'RPM'}};
+ sf:{eye:[-.4,1.94,-.5],paint:0xe9e9ee,leather:0x3a3a3c,dash:0x15151a,wood:0,hy:1.05,z0:.95,z1:2.1,orn:0,wr:.21,fov:82,top:43,lab:'RPM'}};
 let carType='rr';
 const mkTex=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return{c,x:c.getContext('2d'),t}};
 const RT=(()=>{try{const r=new T.WebGLMultisampleRenderTarget(864,240);r.samples=4;return r}catch(e){return new T.WebGLRenderTarget(864,240)}})();RT.texture.encoding=T.sRGBEncoding;const rcam=new T.PerspectiveCamera(17,3.6,.5,250);
