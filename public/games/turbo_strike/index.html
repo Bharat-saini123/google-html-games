@@ -6,7 +6,7 @@
      crossorigin="anonymous"></script>
 <style>
 :root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html,body{height:100%;margin:0;background:#0b0e1a;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+html,body{height:100%;margin:0;background:#0b0e1a;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #xh{position:fixed;left:50%;top:50%;width:0;height:0;pointer-events:none}
 #xh i{position:absolute;background:#fff;box-shadow:0 0 3px #000}
@@ -70,7 +70,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:1px 7px;font-size
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),T=THREE,V=T.Vector3,rn=()=>Math.random()-.5,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-const cv=$('c'),R=new T.WebGLRenderer({canvas:cv,antialias:true});
+const cv=$('c'),touchMode=('ontouchstart' in window)||navigator.maxTouchPoints>0||matchMedia('(pointer: coarse)').matches,R=new T.WebGLRenderer({canvas:cv,antialias:true});
 R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
 R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.outputEncoding=T.sRGBEncoding;
 const S=new T.Scene();S.fog=new T.Fog(0xe9b78e,70,330);
@@ -210,11 +210,11 @@ function spawn(){const el=wave>=3&&Math.random()<.3;let a=Math.random()*6.28,e={
  Object.assign(e,s,{el,hp:el?80+wave*6:40+wave*4,spd:(el?5.6:4.4)+Math.min(wave*.2,2),cd:1+Math.random()*1.5,dead:false,dt:0,str:Math.random()<.5?1:-1,st:2+Math.random()*2,ph:0});E.push(e)}
 function hud(){$('sc').textContent=score;$('kl').textContent=kills;$('wv').textContent=wave;$('en').textContent=E.filter(e=>!e.dead).length+toSpawn;$('hpb').style.width=cl(hp,0,100)/100*220+'px';$('ammo').textContent=rel>0?'...':ammo[cw]}
 function startWave(){wave++;toSpawn=Math.min(3+wave*2,18);spawnT=1.5;banner('WAVE '+wave);if(wave>1){hp=Math.min(100,hp+25);score+=200}}
-function newGame(){initA();if(AC.state==='suspended')AC.resume();E.forEach(e=>S.remove(e.g));E.length=0;PK.forEach(p=>S.remove(p.g));PK.length=0;hp=100;score=kills=wave=0;ammo[0]=30;ammo[1]=6;px=pz=0;py=vy=vx=vz=0;yaw=0;pitch=0;setW(0);
+function newGame(){initA();if(AC.state==='suspended')AC.resume();E.forEach(e=>S.remove(e.g));E.length=0;PK.forEach(p=>S.remove(p.g));PK.length=0;clearTouchControls();hp=100;score=kills=wave=0;ammo[0]=30;ammo[1]=6;px=pz=0;py=vy=vx=vz=0;yaw=0;pitch=0;setW(0);
  $('ov').style.display='none';st='play';startWave();lock()}
-function lock(){try{const r=cv.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(e){}setTimeout(()=>{if(document.pointerLockElement!==cv&&st==='play')fb=true},400)}
+function lock(){if(touchMode){fb=true;return}fb=true;try{const r=cv.requestPointerLock();if(r&&r.then)r.then(()=>{if(document.pointerLockElement===cv)fb=false}).catch(()=>{fb=true})}catch(e){fb=true}setTimeout(()=>{locked=document.pointerLockElement===cv;fb=!locked},450)}
 $('go').onclick=()=>{if(st==='pause'){$('ov').style.display='none';st='play';lock()}else newGame()};
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===cv;if(locked)fb=false;if(!locked&&st==='play'&&!fb){st='pause';$('ovt').innerHTML='Game paused.';$('go').textContent='RESUME ▶';$('ov').style.display='flex'}});
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===cv;if(locked)fb=false;if(!locked&&st==='play'&&!fb&&!touchMode){st='pause';$('ovt').innerHTML='Game paused.';$('go').textContent='RESUME ▶';$('ov').style.display='flex'}});
 // input
 addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space')e.preventDefault();if(e.code==='KeyR')reload();if(e.code==='Digit1')setW(0);if(e.code==='Digit2')setW(1);if((e.code==='KeyF'||e.code==='Enter')&&!locked&&!e.repeat)fire()});
 addEventListener('keyup',e=>K[e.code]=0);
@@ -222,14 +222,13 @@ addEventListener('mousemove',e=>{if(locked&&st==='play'){yaw-=e.movementX*.0022;
 addEventListener('wheel',e=>{if(st==='play')setW(cw?0:1)},{passive:true});
 let dr=null,mvd=0,jid=null,jo=null,touchJoyId=null,touchAimId=null,touchAimPoint=null;
 const stick=$('stick'),stickKnob=stick.firstElementChild;
-function placeStick(x,y){stick.style.left=x+'px';stick.style.top=y+'px';stick.style.bottom='auto';stick.style.marginLeft=-(stick.offsetWidth/2)+'px';stick.style.marginTop=-(stick.offsetHeight/2)+'px';stick.classList.add('visible')}
-function updateStick(x,y){joy.x=cl((x-jo.x)/55,-1,1);joy.y=cl((y-jo.y)/55,-1,1);stickKnob.style.transform=`translate(${joy.x*28}px,${joy.y*28}px)`}
-function resetStick(){joy.x=joy.y=0;jo=null;stick.classList.remove('visible');stickKnob.style.transform='';stick.style.left='';stick.style.top='';stick.style.bottom='';stick.style.marginLeft='';stick.style.marginTop=''}
-document.addEventListener('touchstart',e=>{if(st!=='play'||(e.target instanceof Element&&e.target.closest('.tb')))return;for(const t of e.changedTouches){if(t.clientX<innerWidth*.52&&touchJoyId===null){touchJoyId=t.identifier;jo={x:t.clientX,y:t.clientY};placeStick(t.clientX,t.clientY);e.preventDefault();break}if(t.clientX>=innerWidth*.52&&touchAimId===null){touchAimId=t.identifier;touchAimPoint={x:t.clientX,y:t.clientY};e.preventDefault();break}}},{capture:true,passive:false});
-document.addEventListener('touchmove',e=>{for(const t of e.changedTouches){if(t.identifier===touchJoyId){updateStick(t.clientX,t.clientY);e.preventDefault();break}if(t.identifier===touchAimId&&touchAimPoint){const dx=t.clientX-touchAimPoint.x,dy=t.clientY-touchAimPoint.y;touchAimPoint={x:t.clientX,y:t.clientY};yaw-=dx*.005;pitch=cl(pitch-dy*.005,-1.5,1.5);e.preventDefault();break}}},{capture:true,passive:false});
+function placeStick(x,y){const r=stick.offsetWidth/2||58;jo={x:cl(x,r,Math.max(r,innerWidth*.49-r)),y:cl(y,r,Math.max(r,innerHeight-r))};stick.style.left=jo.x+'px';stick.style.top=jo.y+'px';stick.style.bottom='auto';stick.style.marginLeft=-r+'px';stick.style.marginTop=-r+'px';stick.classList.add('visible')}
+function updateStick(x,y){const axis=v=>{v=cl(v,-1,1);return Math.abs(v)<.1?0:Math.sign(v)*(Math.abs(v)-.1)/.9};joy.x=axis((x-jo.x)/52);joy.y=axis((y-jo.y)/52);stickKnob.style.transform='translate('+joy.x*28+'px,'+joy.y*28+'px)'}function resetStick(){joy.x=joy.y=0;jo=null;stick.classList.remove('visible');stickKnob.style.transform='';stick.style.left='';stick.style.top='';stick.style.bottom='';stick.style.marginLeft='';stick.style.marginTop=''}
+document.addEventListener('touchstart',e=>{if(st!=='play'||(e.target instanceof Element&&e.target.closest('.tb')))return;let used=false;for(const t of e.changedTouches){if(t.clientX<innerWidth*.52&&touchJoyId===null){touchJoyId=t.identifier;placeStick(t.clientX,t.clientY);used=true}else if(t.clientX>=innerWidth*.52&&touchAimId===null){touchAimId=t.identifier;touchAimPoint={x:t.clientX,y:t.clientY};used=true}}if(used)e.preventDefault()},{capture:true,passive:false});
+document.addEventListener('touchmove',e=>{let used=false;for(const t of e.changedTouches){if(t.identifier===touchJoyId&&jo){updateStick(t.clientX,t.clientY);used=true}else if(t.identifier===touchAimId&&touchAimPoint){const dx=t.clientX-touchAimPoint.x,dy=t.clientY-touchAimPoint.y;touchAimPoint={x:t.clientX,y:t.clientY};yaw-=dx*.0045;pitch=cl(pitch-dy*.0045,-1.5,1.5);used=true}}if(used)e.preventDefault()},{capture:true,passive:false});
 function endTouchControls(e){for(const t of e.changedTouches){if(t.identifier===touchJoyId){touchJoyId=null;resetStick()}if(t.identifier===touchAimId){touchAimId=null;touchAimPoint=null}}}
-document.addEventListener('touchend',endTouchControls,true);document.addEventListener('touchcancel',endTouchControls,true);
-document.addEventListener('pointerdown',e=>{const onStick=e.target===stick||stick.contains(e.target);if(st!=='play'||e.pointerType==='touch'||!onStick)return;jid=e.pointerId;jo={x:e.clientX,y:e.clientY};placeStick(e.clientX,e.clientY);try{stick.setPointerCapture(e.pointerId)}catch{}},true);
+function clearTouchControls(){touchJoyId=touchAimId=null;touchAimPoint=null;resetStick();fireHeld=false;for(const k in tc)tc[k]=0}
+document.addEventListener('touchend',endTouchControls,true);document.addEventListener('touchcancel',endTouchControls,true);addEventListener('blur',clearTouchControls);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouchControls()});document.addEventListener('pointerdown',e=>{const onStick=e.target===stick||stick.contains(e.target);if(st!=='play'||e.pointerType==='touch'||!onStick)return;jid=e.pointerId;jo={x:e.clientX,y:e.clientY};placeStick(e.clientX,e.clientY);try{stick.setPointerCapture(e.pointerId)}catch{}},true);
 document.addEventListener('pointermove',e=>{if(e.pointerId===jid&&jo)updateStick(e.clientX,e.clientY)},true);
 function endPointerStick(e){if(e.pointerId!==jid)return;jid=null;resetStick()}
 document.addEventListener('pointerup',endPointerStick,true);document.addEventListener('pointercancel',endPointerStick,true);
@@ -237,7 +236,7 @@ cv.addEventListener('pointerdown',e=>{if(st!=='play'||e.pointerType==='touch')re
 cv.addEventListener('pointermove',e=>{if(dr&&e.pointerId===dr.id){const dx=e.clientX-dr.x,dy=e.clientY-dr.y;dr.x=e.clientX;dr.y=e.clientY;mvd+=Math.abs(dx)+Math.abs(dy);yaw-=dx*.005;pitch=cl(pitch-dy*.005)}});
 const up_=e=>{if(dr&&e.pointerId===dr.id){if(e.pointerType!=='touch'&&mvd<6)fire();dr=null}if(e.button===0)fireHeld=false};
 cv.addEventListener('pointerup',up_);cv.addEventListener('pointercancel',up_);
-document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.onpointerdown=e=>{e.stopPropagation();tc[k]=1;if(k==='r')reload();if(k==='w')setW(cw?0:1)};b.onpointerup=b.onpointercancel=b.onpointerleave=()=>tc[k]=0});
+document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.onpointerdown=e=>{e.preventDefault();e.stopPropagation();try{b.setPointerCapture(e.pointerId)}catch{}tc[k]=1;if(k==='r')reload();if(k==='w')setW(cw?0:1)};b.onpointerup=b.onpointercancel=()=>tc[k]=0});
 addEventListener('contextmenu',e=>e.preventDefault());
 // loop
 let last=performance.now();
