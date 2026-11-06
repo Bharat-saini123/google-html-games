@@ -158,7 +158,7 @@ function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;
    if(Math.abs(c.d)>WL){const s=Math.sign(c.d),ex=Math.abs(c.d)-WL;c.x-=NR[i][0]*s*ex;c.z-=NR[i][1]*s*ex;const vn=(c.vx*NR[i][0]+c.vz*NR[i][1])*s;
     if(vn>0){c.vx-=NR[i][0]*s*vn*1.5;c.vz-=NR[i][1]*s*vn*1.5;c.vx*=.85;c.vz*=.85;if(vn>5){for(let k=0;k<4;k++)part(c.x,.6,c.z,rn()*6,2+Math.random()*3,rn()*6,.35,0xffc060,.2,.5,true);if(c.isP){noise(.2,1500,.3);shake=.5}}}}
    if(c.grass&&Math.abs(c.f)>8&&Math.random()<.5)part(c.x-Math.sin(c.h)*1.5,.3,c.z-Math.cos(c.h)*1.5,rn()*2,1.5,rn()*2,.7,0x6a5a3a,.5,1.5,false);
-   if(c.lap>LAPS&&!c.fin){c.fin=raceT||1;finOrder.push(c);if(c.isP){state='done';const pp=finOrder.length;banner(ord(pp)+' PLACE!');setTimeout(()=>{$('ovt').innerHTML=(pp===1?'🏆 JEET GAYE! ':'🏁 Race khatam! ')+'Tumne <b>'+ord(pp)+'</b> position pe finish kiya.<br>Time: <b>'+fmt(c.fin)+'</b>';$('go').textContent='PHIR SE RACE 🏁';$('ov').style.display='flex'},2200)}}});
+   if(c.lap>LAPS&&!c.fin){c.fin=raceT||1;finOrder.push(c);if(c.isP){state='done';const pp=finOrder.length;banner(ord(pp)+' PLACE!');setTimeout(()=>{$('ovt').innerHTML=(pp===1?'🏆 YOU WON! ':'🏁 RACE COMPLETE! ')+'You finished in <b>'+ord(pp)+'</b> place.<br>Time: <b>'+fmt(c.fin)+'</b>';$('go').textContent='RACE AGAIN 🏁';$('ov').style.display='flex'},2200)}}});
   const rk=[...cars].sort((a,b)=>(b.fin?1e9-b.fin:b.prog)-(a.fin?1e9-a.fin:a.prog)),ps=rk.indexOf(pl)+1;
   $('pos').innerHTML=ps+'<small>/6</small>';$('lap').textContent=Math.min(LAPS,Math.max(1,pl.lap));$('time').textContent=fmt(raceT);
  }

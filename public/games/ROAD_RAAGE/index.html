@@ -114,7 +114,7 @@ function drive(c,dt,thr,str,nit){const f0=c.vx*Math.sin(c.h)+c.vz*Math.cos(c.h);
  c.vx=fx*f+rx*l;c.vz=fz*f+rz*l;c.x+=c.vx*dt;c.z+=c.vz*dt;c.f=f;c.l=l;c.acc=a;c.str=str}
 function hurt(c,d){if(c.dead)return;c.hp-=d;if(c.isP){shake=Math.max(shake,.5);$('fl').style.opacity=1;noise(.15,1200,.25)}if(c.hp<=0)kill(c)}
 function kill(c){c.dead=true;boom(c.x,c.z,true);S.remove(c.g);if(c.bar)S.remove(c.bar);
- if(c.isP){state='over';$('ovt').innerHTML='Gaadi udd gayi! 💥<br>Score: <b>'+score+'</b> · Wave <b>'+wave+'</b>';$('go').textContent='PHIR SE 🔥';$('ov').style.display='flex';if(eo)eo.frequency.value=0}
+ if(c.isP){state='over';$('ovt').innerHTML='Vehicle destroyed! 💥<br>Score: <b>'+score+'</b> · Wave <b>'+wave+'</b>';$('go').textContent='PLAY AGAIN 🔥';$('ov').style.display='flex';if(eo)eo.frequency.value=0}
  else{score+=100;pl.hp=Math.min(100,pl.hp+15)}}
 function fire(c){c.alt=!c.alt;const fx=Math.sin(c.h),fz=Math.cos(c.h),o=c.alt?.6:-.6;
  const x=c.x+fx*2.4+Math.cos(c.h)*o,z=c.z+fz*2.4-Math.sin(c.h)*o;
