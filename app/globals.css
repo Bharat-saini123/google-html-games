@@ -169,6 +169,7 @@ h2 {
 }
 
 .player-section {
+  scroll-margin-top: 14px;
   margin: 0 0 42px;
   padding: 22px;
   border: 1px solid rgba(125, 232, 255, 0.2);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type GameCategory = "car games" | "shooting games" | "puzzle & memory" | "arcade games" | "bike games";
 
@@ -135,6 +135,14 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState<Filter>("all games");
   const [selectedGame, setSelectedGame] = useState<(typeof games)[number] | null>(null);
   const playerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!selectedGame) return;
+    const frame = window.requestAnimationFrame(() => {
+      playerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedGame]);
 
   const visibleGames = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
