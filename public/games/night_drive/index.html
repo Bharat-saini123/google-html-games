@@ -182,8 +182,9 @@ document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.onpointerdown
 document.querySelectorAll('.pick').forEach(p=>p.onclick=()=>{carType=p.dataset.c;document.querySelectorAll('.pick').forEach(q=>q.classList.toggle('on',q===p))});
 // physics
 function drive(c,dt,thr,str,nit){const f0=c.vx*Math.sin(c.h)+c.vz*Math.cos(c.h);c.h+=str*dt*2.6*cl(f0/10,-1,1)/(1+Math.abs(f0)/40);
- const fx=Math.sin(c.h),fz=Math.cos(c.h),rx=Math.cos(c.h),rz=-Math.sin(c.h);let f=c.vx*fx+c.vz*fz,l=c.vx*rx+c.vz*rz;const mx=c.top*(nit?1.45:1)*(c.grass?.55:1);
- let a=thr>0?thr*(nit?85:42):thr*55;if(f>mx&&thr>0)a=0;if(f<-14&&thr<0)a=0;f+=a*dt;f*=1-dt*((thr===0?.9:.12)+(c.grass?.9:0));l*=Math.exp(-dt*(c.grass?3:5));
+ c.boost=(c.boost||0)+((nit?1:0)-(c.boost||0))*Math.min(1,dt*2.5);
+ const fx=Math.sin(c.h),fz=Math.cos(c.h),rx=Math.cos(c.h),rz=-Math.sin(c.h);let f=c.vx*fx+c.vz*fz,l=c.vx*rx+c.vz*rz;const mx=c.top*(1+.24*c.boost)*(c.grass?.55:1);
+ let a=thr>0?thr*(42+18*c.boost):thr*55;if(f>mx&&thr>0)a=0;if(f<-14&&thr<0)a=0;f+=a*dt;f*=1-dt*((thr===0?.9:.12)+(c.grass?.9:0));l*=Math.exp(-dt*(c.grass?3:5));
  c.vx=fx*f+rx*l;c.vz=fz*f+rz*l;c.x+=c.vx*dt;c.z+=c.vz*dt;c.f=f;c.l=l;c.acc=a;c.str=str}
 function near(c){let b=1e9,bi=c.idx;for(let k=-6;k<=22;k++){const j=(c.idx+k+N)%N,dx=c.x-PT[j].x,dz=c.z-PT[j].z,q=dx*dx+dz*dz;if(q<b){b=q;bi=j}}
  const pi=c.idx;if(pi>N*.8&&bi<N*.2)c.lap++;else if(pi<N*.2&&bi>N*.8)c.lap--;c.idx=bi;c.d=(c.x-PT[bi].x)*NR[bi][0]+(c.z-PT[bi].z)*NR[bi][1];c.grass=Math.abs(c.d)>W/2+1.6;c.prog=c.lap*N+bi}
@@ -220,7 +221,7 @@ function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;fr++;
   const sw=intObj.sw;sw.rotation.z+=(-(pl.str||0)*1.3-sw.rotation.z)*Math.min(1,dt*8);
   const bob=pl.grass?Math.sin(t/45)*.004*Math.min(1,sp/15):0;cam.position.set(cf.eye[0],cf.eye[1]+bob,cf.eye[2]);
   cam.fov=cf.fov+sp*.28+(nit&&state==='race'?10:0);cam.updateProjectionMatrix();$('nit').style.opacity=nit&&state==='race'?.55:0;
-  pl.rz=(pl.rz||0)+(cl(-pl.l*(carType==='sf'?.012:.007),-.07,.07)-(pl.rz||0))*Math.min(1,dt*3);pl.rx=(pl.rx||0)+(cl(-(pl.acc||0)*.0004,-.025,.025)-(pl.rx||0))*Math.min(1,dt*2);pl.b.rotation.z=pl.rz;pl.b.rotation.x=pl.rx;
+  pl.rz=(pl.rz||0)+(cl(-pl.l*(carType==='sf'?.006:.004),-.035,.035)-(pl.rz||0))*Math.min(1,dt*2.5);pl.rx=(pl.rx||0)+(cl(-(pl.acc||0)*.00012,-.01,.01)-(pl.rx||0))*Math.min(1,dt*2.5);pl.b.rotation.z=pl.rz;pl.b.rotation.x=pl.rx;
   if(fr%2===0){const gear=Math.min(6,1+Math.floor(kmh/42)),lo=(gear-1)*42;drawCluster(kmh,Math.min(7.6,1+Math.min(1,(kmh-lo)/48)*5.5+(gear>1?.5:0)),cf);if(fr%4===0)drawInfo()}
   $('nt').style.width=nitro+'%';
   if(eo){eo.frequency.value=carType==='rr'?30+sp*2.2:36+sp*3.4;eo2.frequency.value=carType==='rr'?60+sp*4.4:50+sp*3;eo.type=carType==='rr'?'triangle':'sawtooth'}
