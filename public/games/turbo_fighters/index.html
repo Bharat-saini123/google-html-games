@@ -74,7 +74,7 @@ function dF(g,f,sc){
  const leg=(hx,a1,a2,forward)=>{const hy=-61,knx=hx+Math.sin(a1)*31,kny=hy+Math.cos(a1)*31,an=a1+a2,ax=knx+Math.sin(an)*27,ay=kny+Math.cos(an)*27;
   segment(hx,hy,knx,kny,forward?21:19,c.p,c.c);oval(knx,kny,9,8,grad(knx,kny,c.sk,c.p));segment(knx,kny,ax,ay,forward?15:14,c.p,c.a);
   g.save();g.translate(ax,ay);g.rotate(an*.35);g.fillStyle=grad(-2,-5,c.a,c.c);g.beginPath();g.moveTo(-10,-7);g.quadraticCurveTo(3,-12,13,-4);g.lineTo(27,2);g.quadraticCurveTo(30,10,19,11);g.lineTo(-5,8);g.closePath();g.fill();g.fillStyle='rgba(255,255,255,.5)';g.fillRect(4,-3,13,2);g.restore()};
- const fl=f.at==='f'?[k1,k2]:air?[-.75,1.05]:[-sw,Math.max(0,sw)*.8],bl=f.at==='f'?[.1,0]:air?[.25,.8]:[sw,Math.max(0,-sw)*.7];
+ const fl=f.at==='f'?[-k1,-k2]:air?[-.75,1.05]:[-sw,Math.max(0,sw)*.8],bl=f.at==='f'?[.1,0]:air?[.25,.8]:[sw,Math.max(0,-sw)*.7];
  leg(-12,bl[0],bl[1],false);leg(12,fl[0],fl[1],true);
  g.save();g.translate(0,-61);g.rotate(lean);g.translate(0,61);
  // neck and broad, tapered torso
@@ -89,8 +89,8 @@ function dF(g,f,sc){
  const arm=(shoulder,ang1,ang2,front)=>{const sx=shoulder,sy=-123,ex=sx+Math.sin(ang1)*25,ey=sy+Math.cos(ang1)*25,wx=ex+Math.sin(ang1+ang2)*23,wy=ey+Math.cos(ang1+ang2)*23;
   segment(sx,sy,ex,ey,front?17:15,c.c,c.a);oval(ex,ey,8,8,grad(ex,ey,c.sk,c.a));segment(ex,ey,wx,wy,front?13:12,c.sk,c.a);
   g.save();g.translate(wx,wy);g.rotate((ang1+ang2)*.35);g.fillStyle=grad(-8,-8,c.a,c.c);g.beginPath();g.roundRect(-10,-9,22,20,7);g.fill();g.fillStyle='rgba(255,255,255,.48)';g.fillRect(-8,-4,15,2);g.restore()};
- let front=f.blk?[-1.05,-1.8]:[-.42-sw*.35,-1.65],back=f.blk?[-.75,-2.1]:[-.26+sw*.3,-1.65];
- if(f.at==='p')front=pe<0?[-.42-pe*.65,-1.65-pe*.85]:[lp(-.42,-1.35,pe),-1.65*(1-pe)];else if(f.at==='s')front=[-.9,-1.15];else if(f.at==='f')front=[-.18,-1.35];
+ let front=f.blk?[1.05,-.1]:[.42+sw*.35,1.65],back=f.blk?[-.75,-2.1]:[-.26+sw*.3,-1.65];
+ if(f.at==='p')front=pe<0?[.42+pe*.65,1.65+pe*.85]:[lp(.42,1.35,pe),1.65*(1-pe)];else if(f.at==='s')front=[.9,.3];else if(f.at==='f')front=[.18,1.35];
  arm(-25,back[0],back[1],false);
  // character-specific gi, jacket, scarf and armor details
  if(c.h===2){g.fillStyle='rgba(8,8,14,.92)';g.beginPath();g.moveTo(-26,-126);g.lineTo(-34,-104);g.lineTo(-25,-74);g.lineTo(-18,-92);g.lineTo(-10,-124);g.closePath();g.fill();g.beginPath();g.moveTo(27,-126);g.lineTo(36,-103);g.lineTo(26,-72);g.lineTo(19,-92);g.lineTo(10,-124);g.closePath();g.fill();g.strokeStyle=c.a;g.lineWidth=3;g.beginPath();g.moveTo(-23,-111);g.lineTo(-8,-91);g.moveTo(24,-110);g.lineTo(8,-91);g.stroke()}
