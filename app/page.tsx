@@ -20,6 +20,13 @@ const games = [
     categories: ["car games"] as GameCategory[],
   },
   {
+    title: "Night Drive",
+    description: "Race through the city at night from behind the wheel.",
+    icon: "🌙🚗",
+    href: "/games/night_drive/index.html",
+    categories: ["car games"] as GameCategory[],
+  },
+  {
     title: "Animal Memory Match",
     description: "Flip the cards and match all the animals.",
     icon: "🐾",
