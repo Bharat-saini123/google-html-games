@@ -27,6 +27,13 @@ const games = [
     categories: ["car games"] as GameCategory[],
   },
   {
+    title: "Open World Drive",
+    description: "Explore the city and drive freely through an open world.",
+    icon: "🌆🚗",
+    href: "/games/open_drive/index.html",
+    categories: ["car games"] as GameCategory[],
+  },
+  {
     title: "Animal Memory Match",
     description: "Flip the cards and match all the animals.",
     icon: "🐾",
