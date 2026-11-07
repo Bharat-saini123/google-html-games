@@ -93,16 +93,42 @@ const mm=$('mm'),mx=mm.getContext('2d');let bx0=1e9,bx1=-1e9,bz0=1e9,bz1=-1e9;PT
 const ms=230/Math.max(bx1-bx0,bz1-bz0),mp=(x,z)=>[15+(x-bx0)*ms,15+(z-bz0)*ms];
 const mbg=document.createElement('canvas');mbg.width=mbg.height=260;{const c=mbg.getContext('2d');c.strokeStyle='#ddd';c.lineWidth=9;c.lineJoin='round';c.beginPath();PT.forEach((p,i)=>{const q=mp(p.x,p.z);i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])});c.closePath();c.stroke()}
 // cars
-function mkCar(color){const g=new T.Group(),b=new T.Group();g.add(b);
- const paint=new T.MeshStandardMaterial({color,metalness:.75,roughness:.22}),dk=new T.MeshStandardMaterial({color:0x0b0b10,metalness:.5,roughness:.35}),gl=new T.MeshStandardMaterial({color:0x0e1626,metalness:.95,roughness:.04});
- const add=(w,h,d,m,x,y,z)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;b.add(o);return o};
- add(2,.5,4.5,paint,0,.72,0);add(1.9,.28,1.4,paint,0,1.02,1.5).rotation.x=-.2;add(1.7,.55,1.9,gl,0,1.22,-.35);add(1.55,.07,1.5,paint,0,1.52,-.4);
- add(2.1,.22,.3,dk,0,.5,2.3);add(2.1,.22,.3,dk,0,.5,-2.3);add(2.2,.08,.6,paint,0,1.45,-2.05);add(.1,.3,.1,dk,.7,1.28,-2.05);add(.1,.3,.1,dk,-.7,1.28,-2.05);
- const hl=new T.MeshBasicMaterial({color:0xfff4c8}),tl=new T.MeshBasicMaterial({color:0xff1a1a});
- [-.68,.68].forEach(x=>{add(.45,.16,.06,hl,x,.82,2.27);add(.45,.15,.06,tl,x,.86,-2.27)});
- const wh=[],wg=new T.CylinderGeometry(.46,.46,.4,22);wg.rotateZ(Math.PI/2);const rg=new T.CylinderGeometry(.27,.27,.42,10);rg.rotateZ(Math.PI/2);
- [[-1.05,1.4],[1.05,1.4],[-1.05,-1.4],[1.05,-1.4]].forEach((p,i)=>{const pv=new T.Group();pv.position.set(p[0],.46,p[1]);const m=new T.Mesh(wg,dk);m.castShadow=true;m.add(new T.Mesh(rg,new T.MeshStandardMaterial({color:0xcfcfcf,metalness:1,roughness:.2})));pv.add(m);g.add(pv);wh.push({pv,m,fr:i<2})});
- return{g,b,wh}}
+// Open World Drive inspired shared sedan shell and wheel styling.
+let odCarGeo;
+function addOpenDriveCarBody(b,color){
+ if(!odCarGeo){const p={w:1.94,belt:.92,hood:.66,trunk:.94,ro:1.34,cF:1.1,rF:.3,rR:-.7,cR:-1.3,wb:1.42},sh=new T.Shape();
+  sh.moveTo(-2.2,.32);sh.lineTo(-2.28,.6);sh.quadraticCurveTo(-2.28,p.trunk-.05,-1.9,p.trunk);sh.lineTo(-1.2,p.belt+.02);sh.lineTo(.7,p.belt);sh.quadraticCurveTo(1.6,p.belt-.05,2.05,p.hood-.02);sh.quadraticCurveTo(2.32,p.hood-.2,2.28,.45);sh.lineTo(2.1,.32);sh.closePath();
+  const lo=new T.ExtrudeGeometry(sh,{depth:p.w-.14,bevelEnabled:true,bevelThickness:.07,bevelSize:.07,bevelSegments:3});lo.translate(0,0,-(p.w-.14)/2);lo.rotateY(-Math.PI/2);
+  const cb=new T.Shape();cb.moveTo(p.cR,p.belt);cb.lineTo(p.rR,p.ro-.08);cb.quadraticCurveTo(p.rR+.25,p.ro,p.rR+.7,p.ro);cb.lineTo(p.rF,p.ro);cb.quadraticCurveTo(p.rF+.15,p.ro-.02,p.cF,p.belt);cb.closePath();
+  const cw=p.w-.34,ca=new T.ExtrudeGeometry(cb,{depth:cw-.06,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:2});ca.translate(0,0,-(cw-.06)/2);ca.rotateY(-Math.PI/2);odCarGeo={p,lo,ca,cw};
+ }
+ const {p,lo,ca,cw}=odCarGeo,paint=new T.MeshPhysicalMaterial({color,metalness:.52,roughness:.24,clearcoat:.85,clearcoatRoughness:.12}),glass=new T.MeshPhysicalMaterial({color:0x15283b,metalness:.48,roughness:.14,transparent:true,opacity:.72,clearcoat:.65,depthWrite:false}),dark=new T.MeshStandardMaterial({color:0x101319,metalness:.42,roughness:.45}),chrome=new T.MeshStandardMaterial({color:0xd8e0e7,metalness:.9,roughness:.18}),head=new T.MeshStandardMaterial({color:0xfff4d0,emissive:0xffe3a0,emissiveIntensity:1.25}),tail=new T.MeshBasicMaterial({color:0xff2638});
+ const add=(geo,mat,x,y,z,rz=0)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.z=rz;m.castShadow=true;b.add(m);return m},box=(w,h,d)=>new T.BoxGeometry(w,h,d);
+ add(lo,paint,0,0,0);add(ca,glass,0,0,0);add(box(cw-.14,.045,1.35),paint,0,p.ro+.015,.0);
+ // Defined bumpers, grille, lamps, side windows and door trim.
+ add(box(1.55,.22,.18),dark,0,.48,2.28);add(box(1.16,.15,.035),chrome,0,.68,2.37);add(box(.72,.09,.04),dark,0,.68,2.395);
+ add(box(1.65,.18,.16),paint,0,.48,-2.27);add(box(1.18,.075,.035),dark,0,.64,-2.36);add(box(.82,.07,.04),tail,0,.67,-2.385);
+ [-1,1].forEach(s=>{
+  add(box(.38,.13,.045),head,s*.62,.62,2.32);add(box(.4,.07,.04),tail,s*.62,.73,-2.33);
+  add(box(.065,.3,.065),paint,s*cw/2,(p.belt+p.ro)/2,(p.rF+p.cF)/2,Math.atan2(p.rF-p.cF,p.ro-p.belt));
+  add(box(.028,.028,1.28),chrome,s*.974,.48,0);add(box(.028,.025,.55),paint,s*.974,.47,1.0);add(box(.09,.09,.15),chrome,s*.99,.57,.42);
+  add(box(.16,.11,.18),paint,s*1.02,1.02,.75);add(box(.12,.1,.17),glass,s*1.03,1.065,.77);
+  add(box(.025,.38,.025),dark,s*.81,.68,.52);add(box(.025,.38,.025),dark,s*.81,.68,-.53);
+  add(box(.025,.02,1.08),chrome,s*.81,.86,0);
+  add(box(.34,.02,.04),dark,s*.56,.82,.94);add(box(.34,.02,.04),dark,s*.56,.82,.50);
+ });
+ return paint;
+}
+function addOpenDriveCarWheels(g){
+ const tireG=new T.CylinderGeometry(.46,.46,.3,22).rotateZ(Math.PI/2),rimG=new T.CylinderGeometry(.3,.3,.32,16).rotateZ(Math.PI/2),spokeG=new T.BoxGeometry(.05,.55,.06),tire=new T.MeshStandardMaterial({color:0x111114,roughness:.84}),rim=new T.MeshStandardMaterial({color:0xd8e0e7,metalness:.95,roughness:.18}),spoke=new T.MeshStandardMaterial({color:0x171a20,metalness:.45,roughness:.35}),archG=new T.TorusGeometry(.48,.052,8,22,Math.PI).rotateY(Math.PI/2),arch=new T.MeshStandardMaterial({color:0x17191e,metalness:.45,roughness:.5}),wh=[];
+ [[-1,1],[1,1],[-1,-1],[1,-1]].forEach((q,i)=>{const pv=new T.Group();pv.position.set(q[0]*1.01,.46,q[1]*1.42);const m=new T.Group(),tr=new T.Mesh(tireG,tire);tr.castShadow=true;m.add(tr);
+  const rg=new T.Mesh(rimG,rim);m.add(rg);for(let k=0;k<5;k++)[-.15,.15].forEach(xx=>{const sp=new T.Mesh(spokeG,spoke);sp.position.x=xx;sp.rotation.x=k*.628;m.add(sp)});
+  pv.add(m);g.add(pv);wh.push({pv,m,fr:i<2});const fl=new T.Mesh(archG,arch);fl.position.set(q[0]*1.02,.46,q[1]*1.42);fl.castShadow=true;g.add(fl);
+ });
+ return wh;
+}
+
+function mkCar(color){const g=new T.Group(),b=new T.Group();g.add(b);addOpenDriveCarBody(b,color);const wh=addOpenDriveCarWheels(g);return{g,b,wh}}
 const cars=[],finOrder=[];let pl,state='menu',nitro=100,raceT=0,cd=0,lastN=0,camH=0,mt=0,shake=0;
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ad=a=>Math.atan2(Math.sin(a),Math.cos(a)),rn=()=>Math.random()-.5;
 // particles
