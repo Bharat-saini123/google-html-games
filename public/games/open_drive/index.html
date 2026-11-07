@@ -43,6 +43,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:1px 7px;font-size
 <p style="font-size:14px"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrows = drive &nbsp; <kbd>Space</kbd> = handbrake drift &nbsp; <kbd>Shift</kbd> = nitro<br><kbd>C</kbd> = camera &nbsp; <kbd>H</kbd> = horn &nbsp; <kbd>R</kbd> = reset car on the road</p>
 <button id="go">START DRIVING 🚗</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 const $=id=>document.getElementById(id),T=THREE,V=T.Vector3;
 const R=new T.WebGLRenderer({canvas:$('c'),antialias:true});
@@ -150,7 +151,11 @@ function mkCar(color,pl){const g=new T.Group(),b=new T.Group();g.add(b);let t=pl
  return{g,b,wh,tl:tlm,paint}}
 const COL=[0xe01e37,0x2a6fdb,0xffb020,0x1fa36b,0xf2f2f2,0x8a2be2];let pc=0;
 {const sw=$('sws');COL.forEach((c,i)=>{const d=document.createElement('div');d.className='sw'+(i?'':' on');d.style.background='#'+c.toString(16).padStart(6,'0');d.onclick=()=>{pc=i;[...sw.children].forEach(x=>x.classList.remove('on'));d.classList.add('on');if(PL)setColor()};sw.appendChild(d)})}
-const PL={x:0,y:0,z:-30,h:0,vx:0,vz:0,vy:0,f:0,l:0,air:false,gv:0,ss:0,rx:0,rz:0,acc:0,m:mkCar(COL[0],1)};S.add(PL.m.g);
+const carGlbTemplates={};
+function mountCarGlb(c,key){if(!c||!c.b||!carGlbTemplates[key])return;const model=carGlbTemplates[key].clone(true),box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),scale=4.4/Math.max(size.x,size.y,size.z,.001);model.scale.setScalar(scale);model.updateMatrixWorld(true);const fitted=new T.Box3().setFromObject(model),center=fitted.getCenter(new T.Vector3());model.position.set(-center.x,-fitted.min.y,-center.z);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});if(c.glbCar)c.b.remove(c.glbCar);c.b.children.forEach(o=>o.visible=false);c.b.add(model);c.glbCar=model}
+if(T.GLTFLoader){const loader=new T.GLTFLoader();['main_car','car1','car2','car3','car4','car5'].forEach(key=>loader.load('/games/car_glb/'+key+'.glb',gltf=>{carGlbTemplates[key]=gltf.scene;if(window.carGlbTargets)window.carGlbTargets.forEach(t=>mountCarGlb(t.car,t.key))},undefined,()=>{}))}
+
+window.carGlbTargets=[];const PL={x:0,y:0,z:-30,h:0,vx:0,vz:0,vy:0,f:0,l:0,air:false,gv:0,ss:0,rx:0,rz:0,acc:0,m:mkCar(COL[0],1)};S.add(PL.m.g);
 function setColor(){PL.m.paint.color.set(COL[pc])}
 const hls=[-.7,.7].map(x=>{const s=new T.SpotLight(0xfff1d0,0,110,.5,.7,1.3);s.position.set(x,.8,2.2);PL.m.g.add(s);const t=new T.Object3D();t.position.set(x*.5,0,40);PL.m.g.add(t);s.target=t;return s});
 // traffic
@@ -159,7 +164,7 @@ function laneT(c){const lx=c.dz,lz=-c.dx;return c.ax?c.road+4*lz:c.road+4*lx}
 const nr=v=>cl(Math.round(v/100)*100,-NB*100,NB*100);
 function placeT(c,near){const ax=Math.random()<.5,dir=Math.random()<.5?1:-1;let road,s;if(near){road=nr((ax?PL.z:PL.x)+(Math.random()-.5)*500);s=(ax?PL.x:PL.z)+(Math.random()-.5)*620}else{road=RD[Math.random()*RD.length|0];s=(Math.random()-.5)*1900}
  s=cl(s,-980,980);Object.assign(c,{ax,dx:ax?dir:0,dz:ax?0:dir,road,v:0,kx:0,kz:0});if(ax){c.x=s;c.z=laneT(c)}else{c.z=s;c.x=laneT(c)}if(Math.hypot(c.x-PL.x,c.z-PL.z)<45){if(ax)c.x=cl(c.x+130,-980,980);else c.z=cl(c.z+130,-980,980)}c.h=Math.atan2(c.dx,c.dz)}
-function spawnT(i){const m=mkCar(TCOL[i%8],0);S.add(m.g);Object.assign(m,{vt:9+Math.random()*7,x:0,z:0,h:0,v:0});placeT(m,true);TR.push(m)}
+function spawnT(i){const m=mkCar(TCOL[i%8],0);S.add(m.g);Object.assign(m,{vt:9+Math.random()*7,x:0,z:0,h:0,v:0});placeT(m,true);TR.push(m);const key='car'+(i%5+1);window.carGlbTargets.push({car:m,key});mountCarGlb(m,key)}
 for(let i=0;i<50;i++)spawnT(i);
 function updT(c,dt){const f=[c.dx,c.dz],lf=[c.dz,-c.dx];let vt=c.vt;const oth=[PL,...TR];
  for(const o of oth){if(o===c)continue;const rx=o.x-c.x,rz=o.z-c.z;if(Math.abs(rx)>25||Math.abs(rz)>25)continue;const fw=rx*f[0]+rz*f[1],lt=rx*lf[0]+rz*lf[1];if(fw>0&&fw<15&&Math.abs(lt)<2.6)vt=Math.min(vt,Math.max(0,(fw-5)*.7))}

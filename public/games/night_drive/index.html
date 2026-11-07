@@ -65,6 +65,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:1px 7px;font-size
 <p class="controls-copy mobile-controls">Touch controls: ◀ ▶ steer · ⛽ drive · ⏪ brake · ⚡ nitro · 📯 horn</p>
 <button id="go">START RACE 🌙</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 const $=id=>document.getElementById(id),T=THREE,V=T.Vector3;
 const R=new T.WebGLRenderer({canvas:$('c'),antialias:true});
@@ -202,6 +203,10 @@ function mkAI(color){const g=new T.Group(),b=new T.Group();g.add(b);addOpenDrive
  [-1,1].forEach(x=>{const s1=new T.Sprite(glowMat(0xfff0c0));s1.scale.set(1.5,1.5,1);s1.material.opacity=.5;s1.position.set(x*.62,.62,2.4);b.add(s1);const s2=new T.Sprite(glowMat(0xff2a1a));s2.scale.set(1.9,1.9,1);s2.material.opacity=.55;s2.position.set(x*.62,.67,-2.4);b.add(s2)});
  const wh=addOpenDriveCarWheels(g);return{g,b,wh}}
 // state
+const carGlbTemplates={};
+function mountCarGlb(c,key){if(!c||!c.b||!carGlbTemplates[key])return;const model=carGlbTemplates[key].clone(true),box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),scale=4.4/Math.max(size.x,size.y,size.z,.001);model.scale.setScalar(scale);model.updateMatrixWorld(true);const fitted=new T.Box3().setFromObject(model),center=fitted.getCenter(new T.Vector3());model.position.set(-center.x,-fitted.min.y,-center.z);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});if(c.glbCar)c.b.remove(c.glbCar);c.b.children.forEach(o=>o.visible=false);c.b.add(model);c.glbCar=model}
+if(T.GLTFLoader){const loader=new T.GLTFLoader();['main_car','car1','car2','car3','car4','car5'].forEach(key=>loader.load('/games/car_glb/'+key+'.glb',gltf=>{carGlbTemplates[key]=gltf.scene;if(window.carGlbTargets)window.carGlbTargets.forEach(t=>mountCarGlb(t.car,t.key))},undefined,()=>{}))}
+
 const cars=[],finOrder=[];let pl,state='menu',nitro=100,raceT=0,cd=0,lastN=0,mt=0,curPos=6,fr=0,intObj=null;
 function banner(t){const m=$('msg');m.textContent=t;m.style.opacity=1;clearTimeout(mt);mt=setTimeout(()=>m.style.opacity=0,t==='GO!'?900:700)}
 const fmt=t=>Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0'),ord=n=>n+(['th','st','nd','rd'][n>3?0:n]||'th');
@@ -226,7 +231,7 @@ function ai(c,dt){const i=c.idx,look=(5+Math.abs(c.f)*.13)|0,j=(i+look)%N,tx=PT[
  const rb=state==='race'?(pl.prog-c.prog>40?1.07:pl.prog-c.prog<-60?.93:1):1,ts=c.base*rb*(1-Math.min(.5,cv*.9));c.top=c.base*rb;drive(c,dt,c.f<ts?1:c.f>ts+7?-.4:0,cl(df*2.6,-1,1),false)}
 function setup(){cars.forEach(c=>S.remove(c.g));cars.length=0;finOrder.length=0;poles.forEach(p=>{p.knocked=false;p.v=0;p.g.rotation.z=0});const cols=[0x2a6fdb,0x1fa36b,0xe0b32a,0x8a2be2,0xe01e37,0xff7a00],cf=CFG[carType];
  for(let s=0;s<6;s++){const r=s>>1,side=s%2?-4.5:4.5,idx=(N-Math.round(9*(r+1)/SL)+N)%N,isP=s===4,k=isP?(()=>{const g=new T.Group(),b=new T.Group();g.add(b);return{g,b,wh:[]}})():mkAI(cols[s]);S.add(k.g);
-  Object.assign(k,{x:PT[idx].x+NR[idx][0]*side,z:PT[idx].z+NR[idx][1]*side,h:Math.atan2(TG[idx][0],TG[idx][1]),vx:0,vz:0,f:0,l:0,idx,lap:0,fin:0,prog:0,d:0,off:(Math.random()-.5)*10,base:36+Math.random()*7,top:40,isP});cars.push(k);if(isP)pl=k}
+  Object.assign(k,{x:PT[idx].x+NR[idx][0]*side,z:PT[idx].z+NR[idx][1]*side,h:Math.atan2(TG[idx][0],TG[idx][1]),vx:0,vz:0,f:0,l:0,idx,lap:0,fin:0,prog:0,d:0,off:(Math.random()-.5)*10,base:36+Math.random()*7,top:40,isP,modelKey:isP?'main_car':'car'+(s%5+1)});cars.push(k);if(isP)pl=k;mountCarGlb(k,k.modelKey)}
  pl.base=pl.top=cf.top;nitro=100;intObj=buildInt(cf);pl.b.add(intObj.g);
  [-.7,.7].forEach(x=>{const sp=new T.SpotLight(0xfff1d0,1.7,110,.5,.7,1.4);sp.position.set(x,.8,2.2);pl.g.add(sp);const tg=new T.Object3D();tg.position.set(x*.5,0,40);pl.g.add(tg);sp.target=tg});
  pl.b.add(cam);cam.position.set(cf.eye[0],cf.eye[1],cf.eye[2]);cam.rotation.set(.1,Math.PI,0)}

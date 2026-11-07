@@ -40,6 +40,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:1px 7px;font-size
 <p id="ovt">Six cars, three laps, one winner! Drift around corners, avoid the grass and use your nitro at the right time.<br><br><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrows = drive &nbsp; <kbd>Shift</kbd> = nitro &nbsp; <kbd>R</kbd> = return to the track</p>
 <button id="go">RACE START 🏁</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 const $=id=>document.getElementById(id),T=THREE;
 const R=new T.WebGLRenderer({canvas:$('c'),antialias:true});
@@ -129,6 +130,10 @@ function addOpenDriveCarWheels(g){
 }
 
 function mkCar(color){const g=new T.Group(),b=new T.Group();g.add(b);addOpenDriveCarBody(b,color);const wh=addOpenDriveCarWheels(g);return{g,b,wh}}
+const carGlbTemplates={};
+function mountCarGlb(c,key){if(!c||!c.b||!carGlbTemplates[key])return;const model=carGlbTemplates[key].clone(true),box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),scale=4.4/Math.max(size.x,size.y,size.z,.001);model.scale.setScalar(scale);model.updateMatrixWorld(true);const fitted=new T.Box3().setFromObject(model),center=fitted.getCenter(new T.Vector3());model.position.set(-center.x,-fitted.min.y,-center.z);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});if(c.glbCar)c.b.remove(c.glbCar);c.b.children.forEach(o=>o.visible=false);c.b.add(model);c.glbCar=model}
+if(T.GLTFLoader){const loader=new T.GLTFLoader();['main_car','car1','car2','car3','car4','car5'].forEach(key=>loader.load('/games/car_glb/'+key+'.glb',gltf=>{carGlbTemplates[key]=gltf.scene;if(window.carGlbTargets)window.carGlbTargets.forEach(t=>mountCarGlb(t.car,t.key))},undefined,()=>{}))}
+
 const cars=[],finOrder=[];let pl,state='menu',nitro=100,raceT=0,cd=0,lastN=0,camH=0,mt=0,shake=0;
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ad=a=>Math.atan2(Math.sin(a),Math.cos(a)),rn=()=>Math.random()-.5;
 // particles
@@ -161,7 +166,7 @@ const fmt=t=>Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0');
 function setup(){cars.forEach(c=>S.remove(c.g));cars.length=0;finOrder.length=0;
  const cols=[0x2a6fdb,0x1fa36b,0xe0b32a,0x8a2be2,0xe01e37,0xff7a00];
  for(let s=0;s<6;s++){const r=s>>1,side=s%2?-4.5:4.5,idx=(N-Math.round(9*(r+1)/SL)+N)%N,k=mkCar(cols[s]);S.add(k.g);
-  Object.assign(k,{x:PT[idx].x+NR[idx][0]*side,z:PT[idx].z+NR[idx][1]*side,h:Math.atan2(TG[idx][0],TG[idx][1]),vx:0,vz:0,f:0,l:0,idx,lap:0,fin:0,prog:0,d:0,off:(Math.random()-.5)*10,base:36+Math.random()*7,top:40,isP:s===4});cars.push(k);if(s===4)pl=k}
+  Object.assign(k,{x:PT[idx].x+NR[idx][0]*side,z:PT[idx].z+NR[idx][1]*side,h:Math.atan2(TG[idx][0],TG[idx][1]),vx:0,vz:0,f:0,l:0,idx,lap:0,fin:0,prog:0,d:0,off:(Math.random()-.5)*10,base:36+Math.random()*7,top:40,isP:s===4,modelKey:s===4?'main_car':'car'+(s%5+1)});cars.push(k);if(s===4)pl=k;mountCarGlb(k,k.modelKey)}
  pl.base=pl.top=46;nitro=100}
 function start(){initA();if(AC.state==='suspended')AC.resume();setup();state='count';cd=3.4;lastN=0;raceT=0;$('ov').style.display='none';camH=pl.h}
 $('go').onclick=start;setup();

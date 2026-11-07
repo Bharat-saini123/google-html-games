@@ -42,6 +42,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:1px 7px;font-size
 <p id="ovt">You are alone in an arena full of enemy cars. Shoot, crash into them, destroy every car and survive!<br><br><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrows = drive &nbsp; <kbd>Space</kbd> = fire &nbsp; <kbd>Shift</kbd> = nitro</p>
 <button id="go">START 🔥</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 const $=id=>document.getElementById(id),T=THREE;
 const R=new T.WebGLRenderer({canvas:$('c'),antialias:true});
@@ -109,6 +110,10 @@ function addOpenDriveCarWheels(g){
 }
 
 function mkCar(color){const g=new T.Group(),b=new T.Group();g.add(b);addOpenDriveCarBody(b,color);const wh=addOpenDriveCarWheels(g);return{g,b,wh}}
+const carGlbTemplates={};
+function mountCarGlb(c,key){if(!c||!c.b||!carGlbTemplates[key])return;const model=carGlbTemplates[key].clone(true),box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),scale=4.4/Math.max(size.x,size.y,size.z,.001);model.scale.setScalar(scale);model.updateMatrixWorld(true);const fitted=new T.Box3().setFromObject(model),center=fitted.getCenter(new T.Vector3());model.position.set(-center.x,-fitted.min.y,-center.z);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});if(c.glbCar)c.b.remove(c.glbCar);c.b.children.forEach(o=>o.visible=false);c.b.add(model);c.glbCar=model}
+if(T.GLTFLoader){const loader=new T.GLTFLoader();['main_car','car1','car2','car3','car4','car5'].forEach(key=>loader.load('/games/car_glb/'+key+'.glb',gltf=>{carGlbTemplates[key]=gltf.scene;if(window.carGlbTargets)window.carGlbTargets.forEach(t=>mountCarGlb(t.car,t.key))},undefined,()=>{}))}
+
 const cars=[],bul=[];let pl,state='menu',score=0,wave=0,shake=0,nitro=100,camH=0,mt=0;
 const ECOL=[0x2a6fdb,0x8a2be2,0x1fa36b,0xe0b32a,0xe8e8e8,0xff7a00,0x00b7c2];
 function nc(color,isP,x,z,h){const k=mkCar(color);S.add(k.g);Object.assign(k,{isP,x,z,h,vx:0,vz:0,f:0,l:0,hp:100,max:100,cd:0,seed:Math.random()*6,ai:0,alt:false,dead:false});cars.push(k);
