@@ -182,10 +182,7 @@ function prepClips(g){
  const C={};
  g.animations.forEach(c=>{const t=c.tracks.find(t=>t.name==='pelvis.position');if(t){const v=t.values,x0=v[0],y0=v[1];for(let i=0;i<v.length;i+=3){v[i]-=x0;v[i+1]-=y0}}C[c.name]=c});
  C.walkB=THREE.AnimationUtils.subclip(C.walk,'walkB',30,66,30);
- const wf=THREE.AnimationUtils.subclip(C.walk,'walkF',186,222,30);
- const qt=wf.tracks.find(t=>t.name==='pelvis.quaternion'),q=new THREE.Quaternion(),z=new THREE.Quaternion(0,0,1,0);
- if(qt){const v=qt.values;for(let i=0;i<v.length;i+=4){q.set(v[i],v[i+1],v[i+2],v[i+3]);q.premultiply(z);v[i]=q.x;v[i+1]=q.y;v[i+2]=q.z;v[i+3]=q.w}}
- C.walkF=wf;return C
+ return C
 }
 function paint(mesh,ch,dark){
  const g=mesh.geometry=mesh.geometry.clone(),si=g.attributes.skinIndex,sw=g.attributes.skinWeight,col=g.attributes.color,pos=g.attributes.position,bones=mesh.skeleton.bones;
@@ -243,7 +240,7 @@ class MView{
  flash(v){for(const m of this.mats)m.emissive.setScalar(v*.55)}
 }
 const MA={
- idle:{c:'idle',loop:1,fade:.18},walkF:{c:'walkF',loop:1,fade:.1},walkB:{c:'walkB',loop:1,fade:.1},jump:{c:'idle',loop:1,fade:.1,spd:.35},
+ idle:{c:'idle',loop:1,fade:.18},walkB:{c:'walkB',loop:1,fade:.1},jump:{c:'idle',loop:1,fade:.1,spd:.35},
  block:{c:'block',t0:.3,spd:3,hold:.85,fade:.07},fall:{c:'hit',fade:.04},getup:{c:'kipup',fade:.05},win:{c:'upper',spd:.75,fade:.1},flinch:{c:'idle',loop:1,fade:.05,spd:2},
  cross:{c:'cross',spd:1.35,fade:.05},upper:{c:'upper',spd:1.5,fade:.06},side:{c:'sidekick',spd:1.7,fade:.06},dbl:{c:'kick2',spd:1.5,fade:.06},spin:{c:'spinkick',spd:1.45,fade:.06},combo:{c:'combo',spd:1,fade:.05},cast:{c:'cross',spd:.9,fade:.05}
 };
@@ -339,7 +336,7 @@ function upF(f,o,dt){
  else if(f.win)an='win';
  else if(f.blk)an='block';
  else if(f.y>.02)an='jump';
- else if(Math.abs(f.vx)>.25){an=f.vx*f.face>0?'walkF':'walkB'}
+ else if(Math.abs(f.vx)>.25&&f.vx*f.face<0)an='walkB'
  if(f.dn&&f.dn.ph==='lie')an='fall';
  v.set(an);
  if(an.startsWith('walk'))v.setSpeed(clamp(Math.abs(f.vx)/1.05,.8,2.4));
