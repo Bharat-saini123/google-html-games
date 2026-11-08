@@ -412,7 +412,7 @@ function frame(ts){
 }
 /* ---------- boot ---------- */
 async function boot(){
- const files=[['fighters','assets/fighters.glb']],prog={};
+ const files=[['fighters','https://chlrhctfnhmrxitgjnww.supabase.co/storage/v1/object/public/game%20assets/turbo_fighters/assets/fighters.glb']],prog={};
  const upd=()=>{const tot=Object.values(prog).reduce((a,b)=>a+b,0)/files.length;$('lbar').firstElementChild.style.width=(tot*100|0)+'%'};
  const res=await Promise.all(files.map(([k,u])=>new Promise((ok,no)=>gl.load(u,g=>{prog[k]=1;upd();ok([k,g])},e=>{if(e.total){prog[k]=e.loaded/e.total;upd()}},err=>no(new Error('Could not load '+u))))));
  for(const [k,g] of res){if(k==='fighters')MQ={g,C:prepClips(g)}}
@@ -420,6 +420,6 @@ async function boot(){
  buildSelect(thumbs());$('load').style.display='none';$('sel').style.display='flex';
  window.__ready=1;requestAnimationFrame(frame)
 }
-boot().catch(e=>{$('lt').textContent='Error: '+e.message+' — open this page from a web server (not file://) with the assets folder next to index.html.';console.error(e)});
+boot().catch(e=>{$('lt').textContent='Error: '+e.message+' — check that the GLB exists in the public game-assets bucket.';console.error(e)});
 window.__dbg={step:n=>{for(let i=0;i<n;i++){update(1/30);updP(1/30);updR(1/30);sync(hs>0?0:1/30,1/30);hudUpd()}},pause:v=>{paused=v},get F(){return F},get st(){return st},start:(a,b,m)=>{pk=[a,b];stage=2;mode=m||0;newMatch()},inp,THREE,camera,scene};
 </script></body></html>
