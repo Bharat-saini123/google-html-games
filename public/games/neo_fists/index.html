@@ -36,9 +36,9 @@ cv.width=W;cv.height=H;
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 /* ---------- data ---------- */
 const HERO=[
- {n:'KAI',sp:2.7,dm:1,hp:120,shirt:'#2f6bff',pants:'#222a44',hair:'#1b1b1b',band:'#ff3b3b',skin:'#f2c9a0',spiky:1,desc:'Balanced'},
- {n:'REX',sp:2.2,dm:1.35,hp:150,shirt:'#d92b2b',pants:'#3a2a2a',hair:'#7a4020',band:'#ffd23b',skin:'#e0aa80',desc:'Heavy hitter'},
- {n:'YUNA',sp:3.2,dm:.85,hp:100,shirt:'#ff4fa3',pants:'#3a1f4a',hair:'#2b1a4a',band:'#2de2ff',skin:'#f7d6b8',spiky:1,desc:'Fast'}];
+ {n:'KALIYA',sp:2.7,dm:1,hp:120,shirt:'#2f6bff',pants:'#222a44',hair:'#1b1b1b',band:'#ff3b3b',skin:'#f2c9a0',spiky:1,desc:'Balanced'},
+ {n:'BANIO',sp:2.2,dm:1.35,hp:150,shirt:'#d92b2b',pants:'#3a2a2a',hair:'#7a4020',band:'#ffd23b',skin:'#e0aa80',desc:'Heavy hitter'},
+ {n:'PERU',sp:3.2,dm:.85,hp:100,shirt:'#ff4fa3',pants:'#3a1f4a',hair:'#2b1a4a',band:'#2de2ff',skin:'#f7d6b8',spiky:1,desc:'Fast'}];
 const EN={
  thug:{n:'THUG',hp:34,sp:1.3,dm:1,shirt:'#8a8a2a',pants:'#3a3a3a',hair:'#222',skin:'#e9b98e',pts:100},
  ninja:{n:'SHADOW',hp:28,sp:2.4,dm:.8,shirt:'#2a2a3a',pants:'#1a1a22',hair:'#111',band:'#9a3bff',mask:1,skin:'#d9a97c',pts:150},
@@ -68,7 +68,7 @@ document.querySelectorAll('#pad b').forEach(b=>{const k=b.dataset.k;
   b.addEventListener('pointerdown',e=>{e.preventDefault();press(k,true)});
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>down[k]=false))});
 cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
-  if(state==='menu'){if(y>440)begin();else selH=(x-(W-960)/2)<380?0:(x-(W-960)/2)<580?1:2}else if(state==='over')state='menu'});
+  if(state==='menu'){if(y>=496)begin();else if(y>=225&&y<=475){const xx=x-(W-960)/2;selH=xx<380?0:xx<580?1:2}}else if(state==='over')state='menu'});
 /* ---------- audio ---------- */
 let ac;const AC=()=>ac=ac||new(window.AudioContext||window.webkitAudioContext)();
 function nz(len,vol,f0,f1,type='lowpass'){try{const a=AC(),n=a.sampleRate*len|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
@@ -276,10 +276,18 @@ function drawMenu(){
   ctx.save();ctx.shadowColor='#ff4fa3';ctx.shadowBlur=30;txt('NEON FISTS',W/2,120,96,'#fff','center',0);ctx.restore();
   const g=ctx.createLinearGradient(0,60,0,130);g.addColorStop(0,'#ff4fa3');g.addColorStop(1,'#2de2ff');ctx.globalAlpha=.85;txt('NEON FISTS',W/2,120,96,g,'center',0);ctx.globalAlpha=1;
   txt('STREET BRAWLER',W/2,160,28,'#ffd23b','center');
-  ctx.save();ctx.translate((W-960)/2,0);menuF.forEach((f,i)=>{if(i===selH){const r=ctx.createRadialGradient(f.x,400,5,f.x,400,120);r.addColorStop(0,'rgba(255,255,255,.35)');r.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=r;ctx.fillRect(f.x-130,280,260,160)}drawF(f);
-    txt(f.d.n,f.x,440,i===selH?30:22,i===selH?'#ffd23b':'#aaa','center');if(i===selH)txt(f.d.desc,f.x,466,18,'#fff','center')});ctx.restore();
-  txt('◀ ▶ choose  •  Move: Arrows/WASD  •  Punch: J  •  Kick: K  •  Jump: L / Space',W/2,494,16,'#ddd','center');
-  if((tick>>5)%2)txt('PRESS ENTER / TAP HERE TO START',W/2,524,26,'#fff','center')}
+  ctx.save();ctx.translate((W-960)/2,0);
+  txt('CHOOSE YOUR FIGHTER',480,214,24,'#2de2ff','center');
+  menuF.forEach((f,i)=>{const on=i===selH,x=f.x,d=f.d;
+    ctx.fillStyle=on?'#ffd23b':'#555';rr(x-92,232,184,240,14);
+    ctx.fillStyle=on?'rgba(40,18,70,.95)':'rgba(10,5,22,.85)';rr(x-89,235,178,234,12);
+    if(on){const r=ctx.createRadialGradient(x,400,5,x,400,110);r.addColorStop(0,'rgba(255,255,255,.3)');r.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=r;ctx.fillRect(x-100,290,200,150)}
+    [['SPD',d.sp/3.2,'#2de2ff'],['PWR',d.dm/1.35,'#ff4fa3'],['HP',d.hp/150,'#7dff7d']].forEach((r,k)=>{const y=244+k*12;txt(r[0],x-80,y+8,12,on?'#fff':'#aaa','left',0);ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(x-46,y,120,8);ctx.fillStyle=r[2];ctx.fillRect(x-46,y,120*r[1],8)});
+    ctx.globalAlpha=on?1:.7;drawF(f);ctx.globalAlpha=1;
+    txt(d.n,x,448,on?30:24,on?'#ffd23b':'#aaa','center');txt(d.desc,x,466,15,on?'#fff':'#888','center',0)});
+  ctx.restore();
+  txt('TAP A FIGHTER  •  ◀ ▶ to choose  •  Punch: J  Kick: K  Jump: L',W/2,490,14,'#ddd','center');
+  ctx.fillStyle='#ffd23b';rr(W/2-150,498,300,36,10);ctx.fillStyle=(tick>>5)%2?'#ff4fa3':'#c8327f';rr(W/2-147,501,294,30,8);txt('START  ▶',W/2,524,24,'#fff','center')}
 function draw(){
   ctx.save();
   if(shake>.5)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
@@ -294,7 +302,8 @@ function draw(){
   ctx.restore();ctx.drawImage(vg,0,0);
 }
 let last=0,acc=0;
-function frame(t){requestAnimationFrame(frame);acc+=Math.min(50,t-last);last=t;while(acc>=16.67){update();acc-=16.67}draw()}
+function frame(t){requestAnimationFrame(frame);padEl.style.visibility=(state==='play'||state==='pause')?'visible':'hidden';acc+=Math.min(50,t-last);last=t;while(acc>=16.67){update();acc-=16.67}draw()}
+const padEl=document.getElementById('pad');
 requestAnimationFrame(frame);
 </script>
 </body>
