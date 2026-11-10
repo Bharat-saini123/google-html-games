@@ -34,6 +34,54 @@ canvas{background:#000;touch-action:none;display:block}
 let W=960;const cv=document.getElementById('c'),ctx=cv.getContext('2d'),H=540,GY0=332,GY1=508;
 cv.width=W;cv.height=H;
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ============================================================
+   BACKGROUND MUSIC - YAHAN APNI MP3 FILE KA NAAM DAALEIN
+   ============================================================ */
+const BGM_SRC = 'mighty-final-fight.mp3';  // <-- Apni MP3 file ka naam yahan likhein
+const BGM_VOLUME = 0.5;                     // 0.0 se 1.0 tak (0.5 = 50%)
+let bgmAudio = null;
+let bgmStarted = false;
+
+function initBGM(){
+  if(bgmAudio) return;
+  bgmAudio = new Audio(BGM_SRC);
+  bgmAudio.loop = true;
+  bgmAudio.volume = BGM_VOLUME;
+  bgmAudio.preload = 'auto';
+}
+
+function playBGM(){
+  try{
+    initBGM();
+    if(!bgmAudio) return;
+    bgmAudio.currentTime = 0;
+    const p = bgmAudio.play();
+    if(p && p.catch) p.catch(e => console.log('BGM play blocked:', e));
+    bgmStarted = true;
+  }catch(e){console.log('BGM error:',e)}
+}
+
+function pauseBGM(){
+  if(bgmAudio && bgmStarted) bgmAudio.pause();
+}
+
+function resumeBGM(){
+  if(bgmAudio && bgmStarted){
+    const p = bgmAudio.play();
+    if(p && p.catch) p.catch(e => {});
+  }
+}
+
+function stopBGM(){
+  if(bgmAudio){
+    bgmAudio.pause();
+    bgmAudio.currentTime = 0;
+  }
+  bgmStarted = false;
+}
+/* ============================================================ */
+
 /* ---------- data ---------- */
 const HERO=[
  {n:'KALIYA',sp:2.7,dm:1,hp:120,shirt:'#2f6bff',pants:'#222a44',hair:'#1b1b1b',band:'#ff3b3b',skin:'#f2c9a0',spiky:1,desc:'Balanced'},
@@ -44,9 +92,10 @@ const EN={
  ninja:{n:'SHADOW',hp:28,sp:2.4,dm:.8,shirt:'#2a2a3a',pants:'#1a1a22',hair:'#111',band:'#9a3bff',mask:1,skin:'#d9a97c',pts:150},
  brute:{n:'BRUTE',hp:90,sp:.9,dm:1.7,s:1.3,r:68,shirt:'#9a3b1f',pants:'#2a2a2a',hair:'#000',skin:'#c98a60',pts:300},
  boss:{n:'DRAGON LORD',hp:240,sp:1.6,dm:1.5,s:1.4,r:74,boss:1,shirt:'#14141c',pants:'#8a1010',hair:'#e8e8e8',long:1,band:'#ffcc33',skin:'#d9a07a',pts:2000}};
-const AT={p1:{d:16,a:[4,11],r:66,dm:8,kb:1.6},p2:{d:16,a:[4,11],r:66,dm:9,kb:1.8},p3:{d:28,a:[8,17],r:76,dm:14,kb:3,kd:1},
- k:{d:26,a:[7,17],r:90,dm:12,kb:3.2},jk:{d:99,a:[0,99],r:66,dm:12,kb:3,kd:1},
- e1:{d:36,a:[17,23],r:58,dm:6,kb:1.5},e2:{d:42,a:[19,27],r:78,dm:9,kb:3,kd:1}};
+/* ---- ATTACK RANGES REDUCED (close-range only) ---- */
+const AT={p1:{d:16,a:[4,11],r:54,dm:8,kb:1.6},p2:{d:16,a:[4,11],r:54,dm:9,kb:1.8},p3:{d:28,a:[8,17],r:64,dm:14,kb:3,kd:1},
+ k:{d:26,a:[7,17],r:76,dm:12,kb:3.2},jk:{d:99,a:[0,99],r:52,dm:12,kb:3,kd:1},
+ e1:{d:36,a:[17,23],r:46,dm:6,kb:1.5},e2:{d:42,a:[19,27],r:62,dm:9,kb:3,kd:1}};
 const STEP=520,PD=.6;
 function mkWave(n){const pool=[];for(let i=0;i<Math.max(1,3-(n/3|0));i++)pool.push('thug');
  if(n>=1)for(let i=0;i<Math.min(1+(n/2|0),4);i++)pool.push('ninja');
@@ -59,7 +108,11 @@ const down={},buf={punch:0,kick:0,jump:0};
 const KM={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',KeyJ:'punch',KeyZ:'punch',KeyK:'kick',KeyX:'kick',KeyL:'jump',KeyC:'jump',Space:'jump'};
 function press(n,on){down[n]=on;if(on&&buf[n]!==undefined)buf[n]=10}
 addEventListener('keydown',e=>{const n=KM[e.code];
-  if(e.code==='KeyP'||e.code==='Escape'){if(state==='play')state='pause';else if(state==='pause')state='play';return}
+  if(e.code==='KeyP'||e.code==='Escape'){
+    if(state==='play'){state='pause';pauseBGM();}
+    else if(state==='pause'){state='play';resumeBGM();}
+    return;
+  }
   if(state==='menu'){if(n==='left')selH=(selH+2)%3;if(n==='right')selH=(selH+1)%3;if(e.code==='Enter'||e.code==='Space'||n==='punch')begin();if(n)e.preventDefault();return}
   if((state==='over')&&(e.code==='Enter'||e.code==='Space')){state='menu';return}
   if(n){e.preventDefault();if(!e.repeat)press(n,true)}});
@@ -69,32 +122,54 @@ document.querySelectorAll('#pad b').forEach(b=>{const k=b.dataset.k;
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>down[k]=false))});
 cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
   if(state==='menu'){if(y>=496)begin();else if(y>=225&&y<=475){const xx=x-(W-960)/2;selH=xx<380?0:xx<580?1:2}}else if(state==='over')state='menu'});
-/* ---------- audio ---------- */
+/* ---------- audio (SFX) ---------- */
 let ac;const AC=()=>ac=ac||new(window.AudioContext||window.webkitAudioContext)();
 function nz(len,vol,f0,f1,type='lowpass'){try{const a=AC(),n=a.sampleRate*len|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type=type;f.frequency.setValueAtTime(f0,a.currentTime);f.frequency.exponentialRampToValueAtTime(f1,a.currentTime+len);g.gain.value=vol;s.connect(f);f.connect(g);g.connect(a.destination);s.start()}catch(e){}}
 function tn(f0,f1,len,vol,ty='sine',d=0){try{const a=AC(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+d;o.type=ty;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+len);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+len);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+len)}catch(e){}}
 const SFX={hit:()=>{nz(.12,.5,1800,200);tn(160,50,.12,.4)},big:()=>{nz(.22,.7,1200,100);tn(120,35,.25,.6)},whoosh:()=>nz(.12,.18,3000,600,'bandpass'),jump:()=>tn(300,600,.12,.1,'square'),
  ko:()=>{tn(300,40,.5,.25,'sawtooth');nz(.4,.5,800,60)},pick:()=>{tn(600,900,.1,.12,'square');tn(900,1400,.12,.12,'square',.09)},go:()=>{tn(500,500,.1,.1,'square');tn(700,700,.15,.1,'square',.12)}};
+
 /* ---------- state ---------- */
 let tick=0,cam=0,camMax=0,stop=0,shake=0,state='menu',selH=1,pl,en=[],fx=[],pk=[],sq=[],score=0,lives=3,wave=-1,locked=false,goT=0,combo=0,comboT=0,lastE=null,lastET=0,stageT=0,best=0;try{best=+localStorage.getItem('nfBest')||0}catch(e){}
 function mkF(d,x,y,dir){return{x,y,z:0,vx:0,vy:0,vz:0,dir,st:'idle',t:0,hp:d.hp,max:d.hp,gh:d.hp,atk:null,hits:0,hitT:0,inv:0,flash:0,walk:0,cool:50,s:d.s||1,d,landed:0,lt:0,dead:0,rm:0}}
 const menuF=HERO.map((h,i)=>mkF(h,280+i*200,400,1));
-function begin(){goFS();try{AC()}catch(e){}pl=mkF(HERO[selH],120,420,1);pl.hero=1;en=[];fx=[];pk=[];sq=[];score=0;lives=3;wave=-1;cam=0;camMax=STEP;locked=false;goT=0;combo=0;stageT=170;lastE=null;state='play'}
+function begin(){goFS();try{AC()}catch(e){}playBGM();pl=mkF(HERO[selH],120,420,1);pl.hero=1;en=[];fx=[];pk=[];sq=[];score=0;lives=3;wave=-1;cam=0;camMax=STEP;locked=false;goT=0;combo=0;stageT=170;lastE=null;state='play'}
 /* ---------- fx ---------- */
 function sparks(x,y,z,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=2+Math.random()*4;fx.push({k:'s',x,y,z,vx:Math.cos(a)*v,vz:Math.sin(a)*v,t:0,l:12+Math.random()*8})}fx.push({k:'r',x,y,z,t:0,l:9})}
 function dust(x,y,n){for(let i=0;i<n;i++)fx.push({k:'d',x,y,z:4,vx:(Math.random()-.5)*3,vz:Math.random()*1.2,t:0,l:22})}
 function num(x,y,z,v,c){fx.push({k:'n',x,y,z,v,c,t:0,l:40})}
-/* ---------- combat ---------- */
+
+/* ---------- combat (STRICT CLOSE-RANGE HIT) ---------- */
 function startA(f,k,air){f.atk={k,t:0,done:0};
-  if(f.hero&&!down.left&&!down.right){let b=null,bd=150;for(const o of en){if(o.dead||o.st==='down')continue;const d=Math.abs(o.x-f.x)+Math.abs(o.y-f.y);if(d<bd){bd=d;b=o}}if(b)f.dir=b.x>=f.x?1:-1}
+  if(f.hero&&!down.left&&!down.right){let b=null,bd=90;for(const o of en){if(o.dead||o.st==='down')continue;const d=Math.abs(o.x-f.x)+Math.abs(o.y-f.y);if(d<bd){bd=d;b=o}}if(b)f.dir=b.x>=f.x?1:-1}
   if(!air){f.st='atk';f.t=0}SFX.whoosh()}
-function strike(a){const A=AT[a.atk.k],t=a.atk.t;if(a.atk.done||t<A.a[0]||t>A.a[1])return;
+
+function strike(a){
+  const A=AT[a.atk.k],t=a.atk.t;
+  if(a.atk.done||t<A.a[0]||t>A.a[1])return;
   let hit=0;
-  for(const o of(a.hero?en:[pl])){if(o.dead||o.st==='down'||o.st==='getup'||o.inv>0)continue;
+  for(const o of(a.hero?en:[pl])){
+    if(o.dead||o.st==='down'||o.st==='getup'||o.inv>0)continue;
+
     const dx=(o.x-a.x)*a.dir;
-    if(dx>-10&&dx<A.r+14*o.s&&Math.abs(o.y-a.y)<(a.hero?32:17)&&Math.abs(o.z-a.z)<60){hit=1;hurt(o,a,A);if(!a.hero)break}}
-  if(hit)a.atk.done=1}
+    const adx=Math.abs(dx);           // horizontal distance
+    const ady=Math.abs(o.y-a.y);      // depth distance
+    const adz=Math.abs(o.z-a.z);      // vertical distance
+
+    const reach = A.r + 10 * o.s;
+    const yTol  = 22;
+    const zTol  = 55;
+
+    if(dx > -8 && dx < reach && adx < reach && ady < yTol && adz < zTol){
+      hit=1;
+      hurt(o,a,A);
+      if(!a.hero)break;
+    }
+  }
+  if(hit)a.atk.done=1;
+}
+
 function hurt(o,a,A){const dm=Math.max(1,Math.round(A.dm*(a.d.dm||1)*(a.hero?PD:(a.dmul||1)))),dir=a.dir;
   o.hp-=dm;o.flash=6;o.hits++;o.hitT=60;o.dir=-dir;
   sparks(o.x-dir*6,o.y,o.z+58*o.s,A.kd?14:8);num(o.x,o.y,o.z+100*o.s,dm,a.hero?'#ffd23b':'#ff5a5a');
@@ -137,7 +212,7 @@ function upE(e){
     if(ax>want+6)mx=Math.sign(dx);
     if(ay>8&&ax<300)my=Math.sign(dy)*.7;
     e.x+=mx*sp;e.y+=my*sp;e.st=(mx||my)?'walk':'idle';if(mx||my)e.walk+=.2+sp*.05;
-    if(e.cool<=0&&ax<rng+6&&ay<14&&pl.st!=='down'&&pl.st!=='getup'&&pl.inv<=0&&en.filter(x=>x.st==='atk').length<2+(wave>=6)+(wave>=12)){
+    if(e.cool<=0&&ax<rng+2&&ay<10&&pl.st!=='down'&&pl.st!=='getup'&&pl.inv<=0&&en.filter(x=>x.st==='atk').length<2+(wave>=6)+(wave>=12)){
       startA(e,Math.random()<.55?'e1':'e2');e.cool=(e.d.boss?(e.hp<e.max/2?24:44):70+Math.random()*80)*(e.cdm||1)}
   }else if(e.st==='atk'){e.atk.t++;e.t=e.atk.t;strike(e);if(e.atk.t>=AT[e.atk.k].d){e.st='idle';e.atk=null}}
   else phys(e);
@@ -153,7 +228,7 @@ function update(){
   upP(pl);en.forEach(upE);
   for(let i=0;i<en.length;i++)for(let j=i+1;j<en.length;j++){const a=en[i],b=en[j],dx=b.x-a.x,dy=b.y-a.y;if(Math.abs(dx)<26&&Math.abs(dy)<12){const p=dx>=0?1:-1;a.x-=p*.6;b.x+=p*.6;a.y-=dy>=0?.4:-.4;b.y+=dy>=0?.4:-.4}}
   en=en.filter(e=>{if(e.rm){score+=e.d.pts+wave*10;if(Math.random()<(e.d.boss?1:.16))pk.push({x:e.x,y:e.y,t:0});return false}return true});
-  if(pl.rm){lives--;if(lives>0){const d=pl.d;pl=Object.assign(mkF(d,cam+90,420,1),{hero:1,inv:150})}else{state='over';if(score>best){best=score;try{localStorage.setItem('nfBest',best)}catch(e){}}}}
+  if(pl.rm){lives--;if(lives>0){const d=pl.d;pl=Object.assign(mkF(d,cam+90,420,1),{hero:1,inv:150})}else{state='over';stopBGM();if(score>best){best=score;try{localStorage.setItem('nfBest',best)}catch(e){}}}}
   cam+=(pl.x-W*.42-cam)*.12;cam=cl(cam,0,camMax);
   if(!locked&&cam>=camMax-1){wave++;locked=true;stageT=100;const gap=Math.max(14,40-wave*2);sq=mkWave(wave).map((t,i)=>({t:i*gap+25,ty:t}))}
   sq.forEach(q=>{if(q.t>0&&--q.t===0)spawn(q.ty)});
