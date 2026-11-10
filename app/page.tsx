@@ -96,6 +96,13 @@ const games = [
     href: "/games/turbo_fighters/index.html",
     categories: ["arcade games"] as GameCategory[],
   },
+  {
+    title: "Neon Fists",
+    description: "Fight through the neon streets and defeat the Dragon Lord.",
+    icon: "🥊💥",
+    href: "/games/neo_fists/index.html",
+    categories: ["arcade games"] as GameCategory[],
+  },
 ] as const;
 
 const filters = [
