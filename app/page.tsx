@@ -90,6 +90,13 @@ const games = [
     categories: ["shooting games", "arcade games"] as GameCategory[],
   },
   {
+    title: "Blaze Commando",
+    description: "Run, jump, and shoot through the jungle to defeat the fortress boss.",
+    icon: "🔥🔫",
+    href: "/games/Blaze%20Commando/index.html",
+    categories: ["shooting games", "arcade games"] as GameCategory[],
+  },
+  {
     title: "Turbo Fighters",
     description: "Pick a fighter and battle your way through the arena.",
     icon: "🥊",
