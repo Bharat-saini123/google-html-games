@@ -90,9 +90,11 @@ function startA(f,k,air){f.atk={k,t:0,done:0};
   if(f.hero&&!down.left&&!down.right){let b=null,bd=150;for(const o of en){if(o.dead||o.st==='down')continue;const d=Math.abs(o.x-f.x)+Math.abs(o.y-f.y);if(d<bd){bd=d;b=o}}if(b)f.dir=b.x>=f.x?1:-1}
   if(!air){f.st='atk';f.t=0}SFX.whoosh()}
 function strike(a){const A=AT[a.atk.k],t=a.atk.t;if(a.atk.done||t<A.a[0]||t>A.a[1])return;
+  let hit=0;
   for(const o of(a.hero?en:[pl])){if(o.dead||o.st==='down'||o.st==='getup'||o.inv>0)continue;
     const dx=(o.x-a.x)*a.dir;
-    if(dx>-10&&dx<A.r+14*o.s&&Math.abs(o.y-a.y)<(a.hero?32:17)&&Math.abs(o.z-a.z)<60){a.atk.done=1;hurt(o,a,A);break}}}
+    if(dx>-10&&dx<A.r+14*o.s&&Math.abs(o.y-a.y)<(a.hero?32:17)&&Math.abs(o.z-a.z)<60){hit=1;hurt(o,a,A);if(!a.hero)break}}
+  if(hit)a.atk.done=1}
 function hurt(o,a,A){const dm=Math.max(1,Math.round(A.dm*(a.d.dm||1)*(a.hero?PD:(a.dmul||1)))),dir=a.dir;
   o.hp-=dm;o.flash=6;o.hits++;o.hitT=60;o.dir=-dir;
   sparks(o.x-dir*6,o.y,o.z+58*o.s,A.kd?14:8);num(o.x,o.y,o.z+100*o.s,dm,a.hero?'#ffd23b':'#ff5a5a');
