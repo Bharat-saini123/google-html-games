@@ -1153,6 +1153,261 @@ main {
   margin-top: 12px;
 }
 
+.contact-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(270px, 0.6fr);
+  align-items: start;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.contact-card,
+.support-card {
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(25, 37, 66, 0.045);
+}
+
+.contact-card-heading h2,
+.support-card h2 {
+  margin: 7px 0 8px;
+  color: var(--ink);
+  font-size: 1.45rem;
+  letter-spacing: -0.045em;
+}
+
+.contact-card-heading p,
+.support-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.direct-contact {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 19px 0 22px;
+}
+
+.direct-contact a {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 9px;
+  border: 1px solid #e8eaf1;
+  border-radius: 11px;
+  background: #fbfbfd;
+  text-decoration: none;
+}
+
+.direct-contact a > span:first-child {
+  color: #5365e9;
+  font-size: 1.1rem;
+}
+
+.direct-contact small,
+.direct-contact strong {
+  display: block;
+}
+
+.direct-contact small {
+  color: #8791a5;
+  font-size: 0.67rem;
+}
+
+.direct-contact strong {
+  overflow-wrap: anywhere;
+  margin-top: 2px;
+  color: #293550;
+  font-size: 0.73rem;
+}
+
+.contact-form {
+  display: grid;
+  gap: 14px;
+}
+
+.contact-form label,
+.custom-amount {
+  display: grid;
+  gap: 7px;
+  color: #364159;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contact-form input,
+.contact-form textarea,
+.custom-amount input {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #dfe4ee;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.contact-form textarea {
+  min-height: 132px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus,
+.custom-amount input:focus {
+  border-color: #7e8dff;
+  outline: 3px solid rgba(107, 129, 255, 0.13);
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-submit {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 17px;
+  border: 0;
+  cursor: pointer;
+}
+
+.contact-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.form-privacy-note,
+.form-status,
+.support-note,
+.amount-error {
+  margin: 0;
+  color: #78839a;
+  font-size: 0.73rem;
+  line-height: 1.6;
+}
+
+.form-status {
+  min-height: 1.4em;
+  color: #315d45;
+  font-weight: 700;
+}
+
+.support-card {
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(255, 135, 109, 0.14), transparent 55%),
+    #fff;
+}
+
+.support-card h2 {
+  font-size: 1.3rem;
+}
+
+.support-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 18px 0 15px;
+}
+
+.support-amount {
+  min-height: 37px;
+  padding: 7px 11px;
+  border: 1px solid #e0e4ed;
+  border-radius: 9px;
+  background: #fff;
+  color: #525f79;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.support-amount.active {
+  border-color: #5365e9;
+  background: #eff0ff;
+  color: #4052d0;
+}
+
+.custom-amount {
+  margin: 3px 0 12px;
+}
+
+.custom-amount input[aria-invalid="true"] {
+  border-color: #c45050;
+}
+
+.amount-error {
+  margin: -5px 0 12px;
+  color: #a33e3e;
+}
+
+.qr-placeholder,
+.payment-qr {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 20px 14px;
+  border: 1px dashed #cfd5e2;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.78);
+  text-align: center;
+}
+
+.qr-placeholder > span {
+  color: #7986e8;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.qr-placeholder strong {
+  color: #364159;
+  font-size: 0.84rem;
+}
+
+.qr-placeholder small,
+.payment-qr p {
+  max-width: 290px;
+  margin: 0;
+  color: #78839a;
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.payment-qr {
+  border-style: solid;
+}
+
+.payment-qr img {
+  display: block;
+  width: min(100%, 240px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 9px;
+  background: white;
+}
+
+.support-note {
+  margin-top: 12px;
+}
+
 @media (max-width: 900px) {
   .header-inner,
   .footer-inner,
@@ -1522,6 +1777,10 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .contact-tools {
+    grid-template-columns: 1fr;
+  }
+
   .related-section {
     padding-top: 37px;
   }
@@ -1532,6 +1791,27 @@ main {
 
   .info-article {
     gap: 11px;
+  }
+
+  .contact-card,
+  .support-card {
+    padding: 19px 16px;
+  }
+
+  .direct-contact {
+    grid-template-columns: 1fr;
+  }
+
+  .direct-contact a {
+    padding: 10px 12px;
+  }
+
+  .direct-contact strong {
+    font-size: 0.8rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ContactForm from "./contact-form";
 
 type InfoSection = {
   heading: string;
@@ -35,7 +36,7 @@ const pages: Record<
       {
         heading: "Questions",
         paragraphs: [
-          "There is currently no public contact address or contact form on this website. The Contact page explains this limitation rather than publishing an unverified or unmonitored address.",
+          "Use the Contact page to send a message or find the published email, phone, and WhatsApp links.",
         ],
       },
     ],
@@ -44,13 +45,19 @@ const pages: Record<
     eyebrow: "Get in touch",
     title: "Contact Game Arcade",
     intro:
-      "We want visitors to have a clear way to ask a question or report a problem. At present, this website does not publish a monitored email address, postal address, or contact form.",
+      "Send a message about a game, the website, or feedback. Your message will be sent by email, or you can contact us by phone or WhatsApp.",
     sections: [
       {
-        heading: "No contact channel is currently available",
+        heading: "How messages are handled",
         paragraphs: [
-          "We do not want to invent contact details or direct you to a channel that may not be monitored. This page does not collect or transmit messages.",
-          "If a reliable contact method is added, it will be published here along with an explanation of how submitted information is handled.",
+          "The name, email address, subject, and message you provide are sent to the site owner through Gmail SMTP so they can reply. The website does not save form submissions in its own database; messages remain in the email inbox.",
+          "If email delivery is not configured or the service is unavailable, the form will show an error. You can then use the direct email or phone links.",
+        ],
+      },
+      {
+        heading: "Optional support",
+        paragraphs: [
+          "₹49, ₹99, ₹199, and custom amounts are optional suggestions for voluntary support. Games will remain free, and contributions do not unlock paid features.",
         ],
       },
       {
@@ -70,8 +77,15 @@ const pages: Record<
       {
         heading: "Information collected by this website",
         paragraphs: [
-          "The site does not provide user accounts, comments, payments, or a contact form. The current website code does not intentionally ask visitors to submit personal information.",
+          "The site does not provide user accounts, comments, or paid game access. If you use the contact form, your name, email address, subject, and message are sent to the site owner’s inbox through Gmail SMTP so they can respond. The website does not save form submissions in its own database; messages remain in the email inbox and may be retained there according to its settings.",
+          "If you choose the WhatsApp link, WhatsApp receives information according to its own privacy policy. A direct phone call or email opens the relevant app on your device.",
           "The hosting provider may process standard request information to deliver and protect the website. We do not operate a site-specific analytics dashboard or advertising placement at this time.",
+        ],
+      },
+      {
+        heading: "Voluntary support",
+        paragraphs: [
+          "The contact page may offer optional voluntary support suggestions. The site does not provide paid game access or store payment credentials. If you choose to pay using a QR code, your payment app and payment provider process the transaction under their own privacy policies. Confirm the recipient and amount in your payment app before sending.",
         ],
       },
       {
@@ -98,7 +112,7 @@ const pages: Record<
         heading: "Children and policy changes",
         paragraphs: [
           "This site does not request a visitor’s age or intentionally collect children’s personal information. Parents and guardians should supervise children’s browser use and review the practices of any third-party service a game contacts.",
-          "If the site’s data practices change, this policy will be revised to describe the change. There is currently no published contact channel for privacy requests; see Contact Us for that limitation.",
+          "If the site’s data practices change, this policy will be revised to describe the change. Contact the site owner using the contact page for privacy questions.",
         ],
       },
       {
@@ -136,10 +150,16 @@ const pages: Record<
         ],
       },
       {
+        heading: "Voluntary support",
+        paragraphs: [
+          "Any support options on the contact page are voluntary. Games remain free, and a contribution does not buy access, features, or a promised benefit. Check the recipient and amount in your payment app before confirming a transfer.",
+        ],
+      },
+      {
         heading: "Changes",
         paragraphs: [
           "These terms may be updated when the site or its practices change. Continued use after an update means you are using the site under the revised terms.",
-          "There is currently no public contact channel for questions about these terms. See the Contact page for details.",
+          "See the Contact page for the available ways to reach the site owner.",
         ],
       },
       {
@@ -187,7 +207,13 @@ const pages: Record<
   },
 };
 
-export function InfoPage({ page }: { page: InfoPageKey }) {
+export function InfoPage({
+  page,
+  hasPaymentQr = false,
+}: {
+  page: InfoPageKey;
+  hasPaymentQr?: boolean;
+}) {
   const content = pages[page];
 
   return (
@@ -222,6 +248,7 @@ export function InfoPage({ page }: { page: InfoPageKey }) {
           </section>
         ))}
       </article>
+      {page === "contact" && <ContactForm hasPaymentQr={hasPaymentQr} />}
     </main>
   );
 }
