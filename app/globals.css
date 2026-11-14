@@ -1480,13 +1480,28 @@ main {
   .main-nav {
     order: 3;
     width: 100%;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 9px 0 0;
+    justify-content: space-around;
+    gap: 4px;
+    margin: 8px 0 0;
+    padding: 4px;
+    border: 1px solid #e6e9ff;
+    border-radius: 14px;
+    background: #f0f2ff;
   }
 
   .main-nav a {
-    font-size: 0.8rem;
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 10px;
+    color: #465477;
+    font-size: 0.82rem;
+  }
+
+  .main-nav a:hover {
+    background: white;
   }
 
   .header-cta {
@@ -1502,6 +1517,10 @@ main {
     margin-top: 18px;
     padding: 32px 24px 22px;
     border-radius: 20px;
+    background:
+      radial-gradient(ellipse at 86% 12%, rgba(108, 139, 255, 0.42), transparent 43%),
+      radial-gradient(ellipse at 0% 100%, rgba(255, 135, 109, 0.25), transparent 45%),
+      linear-gradient(130deg, #172448 0%, #20275b 54%, #121a33 100%);
   }
 
   .hero h1 {
