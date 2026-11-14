@@ -1,30 +1,26 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
-const siteDescription =
-  "Play free browser games in one place, from car and bike racing to action, puzzles, memory challenges, and arcade favorites.";
+import { SiteFooter, SiteHeader } from "./site-chrome";
 
 export const metadata: Metadata = {
-  title: "Game Arcade | Free Online Racing, Puzzle & Arcade Games",
-  description: siteDescription,
-  keywords: [
-    "free online games",
-    "car games",
-    "bike games",
-    "shooting games",
-    "puzzle games",
-    "memory games",
-    "arcade games",
-    "browser games",
-  ],
+  metadataBase: new URL("https://google-html-games.vercel.app"),
+  title: {
+    default: "Game Arcade | Free Browser Games",
+    template: "%s | Game Arcade",
+  },
+  description:
+    "Browse and play free browser games, from racing and action to puzzles, memory, and arcade challenges.",
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
     type: "website",
-    title: "Game Arcade | Free Online Games",
-    description: siteDescription,
+    siteName: "Game Arcade",
+    title: "Game Arcade | Free Browser Games",
+    description:
+      "Browse and play free browser games, from racing and action to puzzles, memory, and arcade challenges.",
+    locale: "en_US",
   },
 };
 
@@ -35,14 +31,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
+      <body>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2477873571714584"
           crossOrigin="anonymous"
         />
-      </head>
-      <body>{children}</body>
+      </body>
     </html>
   );
 }
