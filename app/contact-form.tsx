@@ -154,7 +154,7 @@ export default function ContactForm({ hasPaymentQr }: { hasPaymentQr: boolean })
         )}
         {hasPaymentQr ? (
           <div className="payment-qr">
-            <img src="/payment-qr.png" alt="QR code for voluntary support payments" width="240" height="240" />
+            <img src="/games/images/QR.jpeg" alt="QR code for voluntary support payments" width="240" height="240" />
             <p>
               Suggested amount: {Number.isInteger(amount) && amount > 0 ? `₹${amount}` : "enter an amount"}.
               Confirm the recipient and amount in your payment app before sending.

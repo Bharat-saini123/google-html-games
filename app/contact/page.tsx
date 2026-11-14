@@ -16,6 +16,6 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  const hasPaymentQr = existsSync(join(process.cwd(), "public", "payment-qr.png"));
+  const hasPaymentQr = existsSync(join(process.cwd(), "public", "games", "images", "QR.jpeg"));
   return <InfoPage page="contact" hasPaymentQr={hasPaymentQr} />;
 }
