@@ -51,6 +51,15 @@ export default function ContactForm({ hasPaymentQr }: { hasPaymentQr: boolean })
   const customAmountInvalid =
     selectedAmount === "custom" &&
     (!Number.isInteger(amount) || amount < 1 || amount > 100000);
+  const canPay = Number.isInteger(amount) && amount >= 1 && amount <= 100000;
+  const paymentParameters = new URLSearchParams({
+    pa: "sainibharat277@okhdfcbank",
+    pn: "Bharat Saini",
+    am: canPay ? String(amount) : "",
+    cu: "INR",
+    tn: "Voluntary support for Game Arcade",
+  });
+  const paymentUrl = `upi://pay?${paymentParameters.toString()}`;
 
   return (
     <div className="contact-tools">
@@ -154,10 +163,23 @@ export default function ContactForm({ hasPaymentQr }: { hasPaymentQr: boolean })
         )}
         {hasPaymentQr ? (
           <div className="payment-qr">
+            <button
+              className="button button-primary pay-button"
+              type="button"
+              disabled={!canPay}
+              onClick={() => {
+                window.location.href = paymentUrl;
+              }}
+            >
+              {canPay ? `Pay ₹${amount} via UPI` : "Enter a valid amount"}
+              <span aria-hidden="true">↗</span>
+            </button>
+            <p>
+              On a phone, this may open Google Pay or another compatible UPI app. On desktop, scan the QR with your phone and enter the selected amount.
+            </p>
             <img src="/games/images/QR.jpeg" alt="QR code for voluntary support payments" width="240" height="240" />
             <p>
-              Suggested amount: {Number.isInteger(amount) && amount > 0 ? `₹${amount}` : "enter an amount"}.
-              Confirm the recipient and amount in your payment app before sending.
+              Verify the recipient is Bharat Saini and confirm the amount in your payment app before sending.
             </p>
           </div>
         ) : (
